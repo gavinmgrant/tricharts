@@ -1,0 +1,53 @@
+import { Meta, Canvas, Source } from "@storybook/blocks"
+
+<Meta title="Introduction" />
+
+# TriCharts
+
+Beautiful, interactive 3D charts for React — powered by Three.js and React Three Fiber
+
+<div style={{ margin: "16px 0" }}>
+  <img
+    src="images/demo.gif"
+    alt="TriCharts Demo"
+    style={{ maxWidth: "100%" }}
+  />
+</div>
+
+## Installation
+
+Install TriCharts along with required peer dependencies:
+
+<Source
+  language="bash"
+  code={`
+# Using npm
+npm install tricharts react react-dom @react-three/fiber @react-three/drei three
+
+# Using yarn
+yarn add tricharts react react-dom @react-three/fiber @react-three/drei three
+
+# Using pnpm
+pnpm add tricharts react react-dom @react-three/fiber @react-three/drei three
+`}
+/>
+
+## Basic Usage
+
+<Source
+  language="jsx"
+  code={`
+import { Bar3DChart } from "tricharts"
+
+function App() {
+return (
+
+<div style={{ height: "400px" }}>
+  <Bar3DChart data={[5, 10, 15, 7, 12]} />
+</div>
+) }`} />
+
+## Resources
+
+- [GitHub Repository](https://github.com/gavinmgrant/tricharts) - Full documentation and source code
+- [npm package](https://www.npmjs.com/package/tricharts) - Latest releases
