@@ -1,6 +1,6 @@
 {
   "name": "tricharts",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "description": "Beautiful, interactive 3D charts for React — powered by Three.js and React Three Fiber",
   "main": "dist/index.js",
