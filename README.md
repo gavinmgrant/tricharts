@@ -1,6 +1,6 @@
 # TriCharts
 
-[![storybook](https://raw.githubusercontent.com/storybooks/brand/master/badge/badge-storybook.svg)](https://681ae7c3fe53a94f2e0d134f-iwcdsjoewp.chromatic.com/)
+[![storybook](https://raw.githubusercontent.com/storybooks/brand/master/badge/badge-storybook.svg)](https://681bd8e0a76963348cb8ef98-kqozlcvgyv.chromatic.com/?path=/docs/introduction--docs)
 [![npm version](https://img.shields.io/npm/v/tricharts.svg)](https://www.npmjs.com/package/tricharts)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://github.com/gavinmgrant/tricharts/blob/main/LICENSE)
 
@@ -171,7 +171,7 @@ function InteractiveChart() {
 | `data`        | `number[] or number[][]` | required    | Data to visualize. Can be a 1D array for a single series or a 2D array for multiple series.                                           |
 | `colorScheme` | `String`                 | `"blue"`    | Color scheme for bars. Options: "blue", "green", "red", "purple", "orange", "rainbow", "random" or a hex color string like "#ff5733". |
 | `barSpacing`  | `number`                 | `1`         | The spacing between the bars.                                                                                                         |
-| `showGrid`    | `boolean`                | `true`      | Whether to show the grid lines.                                                                                                      |
+| `showGrid`    | `boolean`                | `true`      | Whether to show the grid lines.                                                                                                       |
 | `showLabels`  | `boolean`                | `true`      | Whether to show value labels on top of each bar.                                                                                      |
 | `xLabel`      | `string`                 | `undefined` | Label for the X-axis.                                                                                                                 |
 | `yLabel`      | `string`                 | `undefined` | Label for the Y-axis.                                                                                                                 |
