@@ -1,6 +1,6 @@
 # TriCharts
 
-[![storybook](https://raw.githubusercontent.com/storybooks/brand/master/badge/badge-storybook.svg)](https://681bd8e0a76963348cb8ef98-kqozlcvgyv.chromatic.com/?path=/docs/introduction--docs)
+[![storybook](https://raw.githubusercontent.com/storybooks/brand/master/badge/badge-storybook.svg)](https://681bd8e0a76963348cb8ef98-ogygjzjash.chromatic.com/?path=/docs/introduction--docs)
 [![npm version](https://img.shields.io/npm/v/tricharts.svg)](https://www.npmjs.com/package/tricharts)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://github.com/gavinmgrant/tricharts/blob/main/LICENSE)
 
