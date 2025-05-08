@@ -41,30 +41,32 @@ type Story = StoryObj<typeof meta>
 export const Default: Story = {
   args: {
     data: [3, 5, 2, 7, 4],
-    xLabel: "X Axis",
-    yLabel: "Y Axis",
-    zLabel: "Z Axis",
   },
 }
 
-export const RandomColor: Story = {
+export const SingleRowBar: Story = {
   args: {
-    data: [3, 5, 2, 7, 4],
+    data: [12, 19, 3, 5, 9, 3, 7],
     colorScheme: "random",
+    xLabel: "Months",
+    xLabels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
   },
 }
 
-export const RainbowHighValues: Story = {
+export const MultiRowBar: Story = {
   args: {
     data: [
-      [100, 1200, 300, 600, 500],
-      [400, 500, 600, 1080, 800],
-      [900, 300, 700, 200, 300],
+      [12, 19, 3, 5, 2],
+      [22, 12, 15, 5, 9],
+      [8, 14, 12, 7, 11],
     ],
     colorScheme: "rainbow",
-    xLabel: "X Axis",
-    yLabel: "Y Axis",
-    zLabel: "Z Axis",
+    xLabel: "Categories",
+    yLabel: "Values",
+    zLabel: "Year",
+    xLabels: ["A", "B", "C", "D", "E"],
+    zLabels: ["2022", "2023", "2024"],
+    barSpacing: 1.5,
   },
 }
 
@@ -147,7 +149,7 @@ const months = [
 ]
 const days = Array.from({ length: 31 }, (_, i) => (i + 1).toString())
 
-export const DailyRainfall: Story = {
+export const DailyRainfallBar: Story = {
   args: {
     data: rainfallData,
     xLabel: "Day",

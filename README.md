@@ -86,16 +86,16 @@ There is only one chart type available at the moment, which is a 3D bar chart na
 ```jsx
 import { Bar3DChart } from "tricharts"
 
-const data = [12, 19, 3, 5, 2, 3]
+const data = [12, 19, 3, 5, 9, 3, 7]
 
-function SimpleBarChart() {
+function SingleRowBar() {
   return (
     <div style={{ height: "400px" }}>
       <Bar3DChart
         data={data}
-        colorScheme="blue"
-        xLabel="Categories"
-        yLabel="Values"
+        colorScheme="random"
+        xLabel="Months"
+        xLabels={["Jan", "Feb", "Mar", "Apr", "May", "Jun"]}
       />
     </div>
   )
@@ -107,24 +107,24 @@ function SimpleBarChart() {
 ```jsx
 import { Bar3DChart } from "tricharts"
 
-const multiSeriesData = [
+const multiRowData = [
   [12, 19, 3, 5, 2],
   [22, 12, 15, 5, 9],
-  [8, 14, 22, 7, 11],
+  [8, 14, 12, 7, 11],
 ]
 
-function MultiSeriesBarChart() {
+function MultiRowBar() {
   return (
     <div style={{ height: "500px" }}>
       <Bar3DChart
-        data={multiSeriesData}
+        data={multiRowData}
         colorScheme="rainbow"
         xLabel="Categories"
         yLabel="Values"
-        zLabel="Series"
+        zLabel="Year"
         xLabels={["A", "B", "C", "D", "E"]}
-        zLabels={["2021", "2022", "2023"]}
-        barSpacing={0.5}
+        zLabels={["2022", "2023", "2024"]}
+        barSpacing={1.5}
       />
     </div>
   )
@@ -166,20 +166,20 @@ function InteractiveChart() {
 
 ### Bar3DChart Props
 
-| Prop Name     | Type                     | Default     | Description                                                                                                                           |
-| ------------- | ------------------------ | ----------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `data`        | `number[] or number[][]` | required    | Data to visualize. Can be a 1D array for a single series or a 2D array for multiple series.                                           |
-| `colorScheme` | `String`                 | `"blue"`    | Color scheme for bars. Options: "blue", "green", "red", "purple", "orange", "rainbow", "random" or a hex color string like "#ff5733". |
-| `barSpacing`  | `number`                 | `1`         | The spacing between the bars.                                                                                                         |
-| `showGrid`    | `boolean`                | `true`      | Whether to show the grid lines.                                                                                                       |
-| `showLabels`  | `boolean`                | `true`      | Whether to show value labels on top of each bar.                                                                                      |
-| `xLabel`      | `string`                 | `undefined` | Label for the X-axis.                                                                                                                 |
-| `yLabel`      | `string`                 | `undefined` | Label for the Y-axis.                                                                                                                 |
-| `zLabel`      | `string`                 | `undefined` | Label for the Z-axis.                                                                                                                 |
-| `xLabels`     | `string[]`               | `undefined` | Labels for individual X-axis ticks.                                                                                                   |
-| `zLabels`     | `string[]`               | `undefined` | Labels for individual Z-axis ticks.                                                                                                   |
-| `maxHeight`   | `number`                 | `10`        | Maximum height of the tallest bar. Other bars are scaled proportionally.                                                              |
-| `onBarClick`  | `function`               | `undefined` | Callback triggered when a bar is clicked. Receives an object with value, xIndex, and zIndex.                                          |
+| Prop Name     | Type                     | Default     | Description                                                                                                                                                        |
+| ------------- | ------------------------ | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `data`        | `number[] or number[][]` | required    | Data to visualize. Can be a 1D array for a single series or a 2D array for multiple series.                                                                        |
+| `colorScheme` | `String`                 | `"blue"`    | Color scheme for bars. Options: "blue", "green", "red", "purple", "orange", "rainbow", "random" or a hex color string like "#ff5733".                              |
+| `barSpacing`  | `number`                 | `1`         | The spacing between the bars.                                                                                                                                      |
+| `showGrid`    | `boolean`                | `true`      | Whether to show the grid lines.                                                                                                                                    |
+| `showLabels`  | `boolean`                | `true`      | Whether to show value labels on top of each bar.                                                                                                                   |
+| `xLabel`      | `string`                 | `undefined` | Label for the X-axis.                                                                                                                                              |
+| `yLabel`      | `string`                 | `undefined` | Label for the Y-axis.                                                                                                                                              |
+| `zLabel`      | `string`                 | `undefined` | Label for the Z-axis.                                                                                                                                              |
+| `xLabels`     | `string[]`               | `undefined` | Labels for individual X-axis ticks.                                                                                                                                |
+| `zLabels`     | `string[]`               | `undefined` | Labels for individual Z-axis ticks.                                                                                                                                |
+| `maxHeight`   | `number`                 | `10`        | Maximum height of the tallest bar. Other bars are scaled proportionally.                                                                                           |
+| `onBarClick`  | `function`               | `undefined` | Callback triggered when a bar is clicked. Receives an object with this shape: `{ value: number, xIndex: number, zIndex: number, xLabel: string, zLabel: string }`. |
 
 ## License
 
