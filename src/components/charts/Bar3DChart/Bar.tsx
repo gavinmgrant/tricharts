@@ -29,7 +29,7 @@ const Bar: FC<BarProps> = memo(
     const edgesRef = useRef<THREE.LineSegments>(null)
     const [hovered, setHovered] = useState(false)
 
-    const { meshRef, displayValue } = use3DScaling(height, {
+    const { meshRef, displayValue, currentHeight } = use3DScaling(height, {
       duration: ANIMATION_DURATION,
       labelRef: showLabel ? textRef : undefined,
       originalValue,
@@ -79,7 +79,7 @@ const Bar: FC<BarProps> = memo(
         {showLabel && (
           <Text
             ref={textRef}
-            position={[xPos, 0, zPos]}
+            position={[xPos, currentHeight || height, zPos]}
             rotation={[-Math.PI / 2, 0, 0]}
             fontSize={barDepth / 3}
             fontWeight={700}
