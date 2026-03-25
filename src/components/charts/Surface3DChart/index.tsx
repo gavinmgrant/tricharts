@@ -1,26 +1,32 @@
 import { FC, useMemo, useState } from "react"
-import { Shared3DScene } from "@/components/Shared3DScene"
 import {
   BAR_DEPTH,
   BAR_WIDTH,
   barCellCenterXZ,
-  computeBarColors,
   computeChartDimensions,
   computeScaleFactor,
-  normalizeBarChartData,
+  hasMinimumSurfaceGrid,
+  normalizeSurfaceChartData,
+  resolveSurfaceGradientPalette,
 } from "@/components/charts/shared/grid3DChartLayout"
+import { Shared3DScene } from "@/components/Shared3DScene"
 import { Tooltip } from "@/components/helpers/Tooltip"
 import { TooltipContent } from "@/components/helpers/Tooltip/TooltipContent"
 import { Text } from "@react-three/drei"
-import Bar from "./Bar"
-import type { Bar3DChartProps } from "./types"
+import type { ThreeEvent } from "@react-three/fiber"
+import { nearestBarCellFromWorldXZ } from "./nearestCell"
+import { SurfaceMesh } from "./SurfaceMesh"
+import type { Surface3DChartProps } from "./types"
 
-export const Bar3DChart: FC<Bar3DChartProps> = ({
+export const Surface3DChart: FC<Surface3DChartProps> = ({
   data,
   barSpacing = 1,
   colorScheme = "blue",
   showGrid = true,
-  showLabels = true,
+  showWireframe = false,
+  showSurfacePoints = true,
+  surfacePointColor,
+  surfacePointRadius,
   xLabel,
   xLabels,
   yLabel,
@@ -39,53 +45,14 @@ export const Bar3DChart: FC<Bar3DChartProps> = ({
     content: null,
   })
 
-  const handleBarClick = (value: number, xIndex: number, zIndex: number) => {
-    const xBarLabel = xLabels ? xLabels[xIndex] : ""
-    const zBarLabel = zLabels ? zLabels[zIndex] : ""
+  const normalizedData = useMemo(() => normalizeSurfaceChartData(data), [data])
 
-    const [xPos, zPos] = barCellCenterXZ(
-      xIndex,
-      zIndex,
-      BAR_WIDTH,
-      BAR_DEPTH,
-      barSpacing
-    )
-    const yPos = value * scaleFactor + 0.5
-
-    setTooltip({
-      visible: true,
-      position: [xPos, yPos, zPos],
-      content: (
-        <TooltipContent
-          value={value}
-          xLabel={xBarLabel}
-          yLabel={yLabel}
-          zLabel={zBarLabel}
-        />
-      ),
-    })
-
-    if (onBarClick) {
-      onBarClick({
-        value,
-        xIndex,
-        zIndex,
-        xLabel: xLabels?.[xIndex],
-        zLabel: zLabels?.[zIndex],
-      })
-    }
-  }
-
-  const closeTooltip = () => {
-    setTooltip((prev) => ({ ...prev, visible: false }))
-  }
-
-  const normalizedData = useMemo(() => normalizeBarChartData(data), [data])
-
-  const barColors = useMemo(
-    () => computeBarColors(normalizedData, colorScheme),
-    [normalizedData, colorScheme]
+  const surfaceColorStops = useMemo(
+    () => resolveSurfaceGradientPalette(colorScheme),
+    [colorScheme]
   )
+
+  const surfaceHighlightColor = surfaceColorStops[surfaceColorStops.length - 1]
 
   const scaleFactor = useMemo(
     () => computeScaleFactor(normalizedData, maxHeight),
@@ -120,6 +87,61 @@ export const Bar3DChart: FC<Bar3DChartProps> = ({
     [xLabel, yLabel, zLabel]
   )
 
+  const rows = normalizedData.length
+  const cols = rows > 0 ? normalizedData[0].length : 0
+  const surfaceGridOk = hasMinimumSurfaceGrid(normalizedData)
+
+  const handleSurfaceClick = (e: ThreeEvent<MouseEvent>) => {
+    e.stopPropagation()
+    if (!surfaceGridOk) return
+
+    const p = e.point
+    const { xIndex, zIndex } = nearestBarCellFromWorldXZ(
+      p.x,
+      p.z,
+      rows,
+      cols,
+      BAR_WIDTH,
+      BAR_DEPTH,
+      barSpacing
+    )
+    const value = normalizedData[zIndex][xIndex]
+
+    const [xPos, zPos] = barCellCenterXZ(
+      xIndex,
+      zIndex,
+      BAR_WIDTH,
+      BAR_DEPTH,
+      barSpacing
+    )
+    const yPos = value * scaleFactor + 0.5
+
+    setTooltip({
+      visible: true,
+      position: [xPos, yPos, zPos],
+      content: (
+        <TooltipContent
+          value={value}
+          xLabel={xLabels?.[xIndex] ?? ""}
+          yLabel={yLabel}
+          zLabel={zLabels?.[zIndex] ?? ""}
+        />
+      ),
+    })
+
+    onBarClick?.({
+      value,
+      xIndex,
+      zIndex,
+      xLabel: xLabels?.[xIndex],
+      zLabel: zLabels?.[zIndex],
+    })
+  }
+
+  const closeTooltip = () => {
+    setTooltip((prev) => ({ ...prev, visible: false }))
+  }
+
   return (
     <Shared3DScene
       chartDimensions={chartDimensions}
@@ -129,24 +151,21 @@ export const Bar3DChart: FC<Bar3DChartProps> = ({
       autoPosition={true}
       axisLabels={axisLabels}
     >
-      {normalizedData.map((row, zIndex) =>
-        // For each row (z-axis)
-        row.map((value, xIndex) => (
-          // For each column (x-axis)
-          <Bar
-            key={`${zIndex}-${xIndex}`}
-            height={value * scaleFactor}
-            originalValue={value}
-            xIndex={xIndex}
-            zIndex={zIndex}
-            barWidth={BAR_WIDTH}
-            barDepth={BAR_DEPTH}
-            barSpacing={barSpacing}
-            color={barColors[zIndex][xIndex]}
-            showLabel={showLabels}
-            onClick={(value) => handleBarClick(value, xIndex, zIndex)}
-          />
-        ))
+      {surfaceGridOk && (
+        <SurfaceMesh
+          normalizedData={normalizedData}
+          scaleFactor={scaleFactor}
+          barWidth={BAR_WIDTH}
+          barDepth={BAR_DEPTH}
+          barSpacing={barSpacing}
+          colorStops={surfaceColorStops}
+          highlightColor={surfaceHighlightColor}
+          showWireframe={showWireframe}
+          showSurfacePoints={showSurfacePoints}
+          surfacePointColor={surfacePointColor}
+          surfacePointRadius={surfacePointRadius}
+          onClick={handleSurfaceClick}
+        />
       )}
 
       <Tooltip
@@ -156,7 +175,6 @@ export const Bar3DChart: FC<Bar3DChartProps> = ({
         onClose={closeTooltip}
       />
 
-      {/* Z-axis row labels */}
       {zLabels &&
         normalizedData.map((_, zIndex) => {
           if (!zLabels[zIndex]) return null
@@ -181,14 +199,15 @@ export const Bar3DChart: FC<Bar3DChartProps> = ({
           )
         })}
 
-      {/* X-axis column labels */}
       {xLabels &&
-        normalizedData[0].map((_, xIndex) => {
+        normalizedData[0]?.map((_, xIndex) => {
           if (!xLabels[xIndex]) return null
 
           const xPos = xIndex * (BAR_WIDTH + barSpacing)
           const endEdgePosition =
-            normalizedData.length * (BAR_DEPTH + barSpacing) - barSpacing + BAR_DEPTH
+            normalizedData.length * (BAR_DEPTH + barSpacing) -
+            barSpacing +
+            BAR_DEPTH
 
           return (
             <Text
