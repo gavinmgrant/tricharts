@@ -157,6 +157,14 @@ function deriveGradientPalette(baseColor: string): string[] {
   ]
 }
 
+const SURFACE_NAMED_GRADIENTS: Partial<Record<ColorSchemeName, string[]>> = {
+  blue: [COLOR_SCHEMES.blue, COLOR_SCHEMES.red],
+  red: [COLOR_SCHEMES.red, COLOR_SCHEMES.blue],
+  green: [COLOR_SCHEMES.green, COLOR_SCHEMES.purple],
+  purple: [COLOR_SCHEMES.purple, COLOR_SCHEMES.green],
+  orange: [COLOR_SCHEMES.orange, COLOR_SCHEMES.blue],
+}
+
 export function resolveSurfaceGradientPalette(
   colorScheme: string | string[] | string[][]
 ): string[] {
@@ -179,12 +187,17 @@ export function resolveSurfaceGradientPalette(
     return deriveGradientPalette(colorScheme)
   }
 
-  const namedScheme = COLOR_SCHEMES[colorScheme as ColorSchemeName]
+  const schemeName = colorScheme as ColorSchemeName
+  const namedGradient = SURFACE_NAMED_GRADIENTS[schemeName]
+  if (namedGradient) return namedGradient
+
+  const namedScheme = COLOR_SCHEMES[schemeName]
   if (Array.isArray(namedScheme)) {
     return namedScheme
   }
 
   if (typeof namedScheme === "string") {
+    // Fallback for any future named schemes: still treat as gradient
     return deriveGradientPalette(namedScheme)
   }
 

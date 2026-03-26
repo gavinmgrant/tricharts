@@ -1,6 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react"
 import { Surface3DChart } from "@/components/charts/Surface3DChart"
 import { withContainer } from "@/stories/decorators"
+import {
+  rainfallDayLabels,
+  rainfallMonths,
+  rainfallRectangularGrid,
+} from "@/stories/rainfallChartData"
 
 /** Sample height field for demos: large, smooth surface with visible extent. */
 function waveSurfaceData(rows: number, cols: number): number[][] {
@@ -76,6 +81,22 @@ export const Default: Story = {
     barSpacing: 0.85,
     colorScheme: "blue",
     surfacePointRadius: 0.12,
+  },
+}
+
+/** Same daily rainfall series as `Bar3DChart` → DailyRainfallBar (rectangular 12×31 grid for the surface mesh). */
+export const DailyRainfallSurface: Story = {
+  args: {
+    data: rainfallRectangularGrid,
+    xLabel: "Day",
+    yLabel: "Rainfall (in)",
+    zLabel: "Month",
+    zLabels: rainfallMonths,
+    xLabels: rainfallDayLabels,
+    barSpacing: 0.85,
+    colorScheme: "rainbow",
+    surfacePointRadius: 0.12,
+    surfacePointColor: "black",
   },
 }
 

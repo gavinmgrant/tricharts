@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react"
+import { useFrame } from "@react-three/fiber"
 import * as THREE from "three"
 import {
   getSurfaceVertexColors,
@@ -16,6 +17,8 @@ export type SurfacePointSpheresProps = {
   pointColor?: string
   /** Sphere radius in world units. Defaults from bar footprint size. */
   pointRadius?: number
+  /** Shared intro animation progress (0 → 1) from the parent surface mesh. */
+  easedProgressRef?: React.MutableRefObject<number>
 }
 
 const DEFAULT_POINT_COLOR = "#f1f5f9"
@@ -33,6 +36,7 @@ export function SurfacePointSpheres({
   colorStops,
   pointColor,
   pointRadius,
+  easedProgressRef,
 }: SurfacePointSpheresProps) {
   const positions = useMemo(
     () =>
@@ -84,12 +88,15 @@ export function SurfacePointSpheres({
     [resolvedPointColor, useGradientPointColors]
   )
 
+  const lastEasedRef = useRef<number>(-1)
+
   useLayoutEffect(() => {
     const mesh = meshRef.current
     if (!mesh) return
     const lift = radius * 0.92
+    const eased = easedProgressRef?.current ?? 1
     positions.forEach((pos, i) => {
-      obj.position.set(pos[0], pos[1] + lift, pos[2])
+      obj.position.set(pos[0], pos[1] * eased + lift, pos[2])
       obj.updateMatrix()
       mesh.setMatrixAt(i, obj.matrix)
       if (colors[i]) {
@@ -100,7 +107,28 @@ export function SurfacePointSpheres({
     if (mesh.instanceColor) {
       mesh.instanceColor.needsUpdate = true
     }
-  }, [colors, positions, obj, radius])
+    lastEasedRef.current = eased
+  }, [colors, positions, obj, radius, easedProgressRef])
+
+  useFrame(() => {
+    const mesh = meshRef.current
+    if (!mesh) return
+    if (count === 0) return
+    if (!easedProgressRef) return
+
+    const eased = easedProgressRef.current
+    if (eased === lastEasedRef.current) return
+
+    const lift = radius * 0.92
+    for (let i = 0; i < positions.length; i++) {
+      const pos = positions[i]
+      obj.position.set(pos[0], pos[1] * eased + lift, pos[2])
+      obj.updateMatrix()
+      mesh.setMatrixAt(i, obj.matrix)
+    }
+    mesh.instanceMatrix.needsUpdate = true
+    lastEasedRef.current = eased
+  })
 
   useEffect(() => {
     return () => {

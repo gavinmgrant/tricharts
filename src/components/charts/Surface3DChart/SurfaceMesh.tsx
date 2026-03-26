@@ -1,8 +1,10 @@
-import { FC, useEffect, useMemo, useState } from "react"
+import { FC, useEffect, useMemo, useRef, useState } from "react"
 import type { ThreeEvent } from "@react-three/fiber"
+import { useFrame } from "@react-three/fiber"
 import * as THREE from "three"
 import { buildSurfaceGeometry } from "./SurfaceGeometry"
 import { SurfacePointSpheres } from "./SurfacePointSpheres"
+import { useIntroProgress } from "./useIntroProgress"
 
 type SurfaceMeshProps = {
   normalizedData: number[][]
@@ -34,6 +36,22 @@ export const SurfaceMesh: FC<SurfaceMeshProps> = ({
   onClick,
 }) => {
   const [hovered, setHovered] = useState(false)
+  const groupRef = useRef<THREE.Group>(null)
+
+  const { easedProgressRef } = useIntroProgress(0.5, [
+    normalizedData,
+    scaleFactor,
+    barWidth,
+    barDepth,
+    barSpacing,
+  ])
+
+  useFrame(() => {
+    const g = groupRef.current
+    if (!g) return
+    g.scale.y = easedProgressRef.current
+  })
+
   const geometry = useMemo(
     () =>
       buildSurfaceGeometry(
@@ -52,7 +70,7 @@ export const SurfaceMesh: FC<SurfaceMeshProps> = ({
   }, [geometry])
 
   return (
-    <group>
+    <group ref={groupRef}>
       <mesh
         geometry={geometry}
         onClick={onClick}
@@ -80,6 +98,7 @@ export const SurfaceMesh: FC<SurfaceMeshProps> = ({
           colorStops={colorStops}
           pointColor={surfacePointColor}
           pointRadius={surfacePointRadius}
+          easedProgressRef={easedProgressRef}
         />
       )}
     </group>
