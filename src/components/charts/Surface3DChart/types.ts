@@ -7,6 +7,8 @@ export type Surface3DChartProps = {
   colorScheme?: string | string[] | string[][]
   showGrid?: boolean
   showWireframe?: boolean
+  /** When true (default), show a numeric value label above each grid vertex (same idea as Bar3DChart). */
+  showLabels?: boolean
   /** When true (default), small spheres mark each grid vertex on the surface */
   showSurfacePoints?: boolean
   /** Optional sphere color override. When omitted, points use the surface gradient. */

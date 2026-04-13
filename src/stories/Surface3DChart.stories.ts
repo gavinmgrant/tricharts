@@ -58,6 +58,7 @@ const meta = {
     },
     barSpacing: { control: { type: "range", min: 0, max: 2, step: 0.1 } },
     showWireframe: { control: { type: "boolean" } },
+    showLabels: { control: { type: "boolean" } },
     showSurfacePoints: { control: { type: "boolean" } },
     surfacePointRadius: { control: { type: "range", min: 0.04, max: 0.3, step: 0.01 } },
   },

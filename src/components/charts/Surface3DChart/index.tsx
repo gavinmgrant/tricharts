@@ -24,6 +24,7 @@ export const Surface3DChart: FC<Surface3DChartProps> = ({
   colorScheme = "blue",
   showGrid = true,
   showWireframe = false,
+  showLabels = true,
   showSurfacePoints = true,
   surfacePointColor,
   surfacePointRadius,
@@ -170,6 +171,7 @@ export const Surface3DChart: FC<Surface3DChartProps> = ({
           colorStops={surfaceColorStops}
           highlightColor={surfaceHighlightColor}
           showWireframe={showWireframe}
+          showLabels={showLabels}
           showSurfacePoints={showSurfacePoints}
           surfacePointColor={surfacePointColor}
           surfacePointRadius={surfacePointRadius}

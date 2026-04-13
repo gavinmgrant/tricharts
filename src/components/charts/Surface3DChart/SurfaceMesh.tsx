@@ -4,6 +4,7 @@ import { useFrame } from "@react-three/fiber"
 import * as THREE from "three"
 import { buildSurfaceGeometry } from "./SurfaceGeometry"
 import { SurfacePointSpheres } from "./SurfacePointSpheres"
+import { SurfaceValueLabels } from "./SurfaceValueLabels"
 import { useIntroProgress } from "./useIntroProgress"
 
 type SurfaceMeshProps = {
@@ -15,6 +16,7 @@ type SurfaceMeshProps = {
   colorStops: string[]
   highlightColor: string
   showWireframe?: boolean
+  showLabels?: boolean
   showSurfacePoints?: boolean
   surfacePointColor?: string
   surfacePointRadius?: number
@@ -30,6 +32,7 @@ export const SurfaceMesh: FC<SurfaceMeshProps> = ({
   colorStops,
   highlightColor,
   showWireframe = false,
+  showLabels = true,
   showSurfacePoints = true,
   surfacePointColor,
   surfacePointRadius,
@@ -87,6 +90,17 @@ export const SurfaceMesh: FC<SurfaceMeshProps> = ({
           wireframe={showWireframe}
         />
       </mesh>
+      {showLabels && (
+        <SurfaceValueLabels
+          normalizedData={normalizedData}
+          scaleFactor={scaleFactor}
+          barWidth={barWidth}
+          barDepth={barDepth}
+          barSpacing={barSpacing}
+          surfacePointRadius={surfacePointRadius}
+          easedProgressRef={easedProgressRef}
+        />
+      )}
       {showSurfacePoints && (
         <SurfacePointSpheres
           normalizedData={normalizedData}
