@@ -1,4 +1,4 @@
-import { FC, useCallback, useMemo, useState } from "react"
+import { FC, useCallback, useEffect, useMemo, useState } from "react"
 import {
   BAR_DEPTH,
   BAR_WIDTH,
@@ -9,6 +9,10 @@ import {
   normalizeSurfaceChartData,
   resolveSurfaceGradientPalette,
 } from "@/components/charts/shared/grid3DChartLayout"
+import {
+  resolveGridSpacing,
+  warnDeprecatedBarSpacingOnce,
+} from "@/components/charts/shared/resolveGridSpacing"
 import { Shared3DScene } from "@/components/Shared3DScene"
 import { Tooltip } from "@/components/helpers/Tooltip"
 import { TooltipContent } from "@/components/helpers/Tooltip/TooltipContent"
@@ -20,7 +24,8 @@ import type { Surface3DChartProps } from "./types"
 
 export const Surface3DChart: FC<Surface3DChartProps> = ({
   data,
-  barSpacing = 1,
+  gridSpacing,
+  barSpacing,
   colorScheme = "blue",
   showGrid = true,
   showWireframe = false,
@@ -36,6 +41,13 @@ export const Surface3DChart: FC<Surface3DChartProps> = ({
   maxHeight = 10,
   onBarClick,
 }) => {
+  const spacing = resolveGridSpacing(gridSpacing, barSpacing, 1)
+
+  useEffect(() => {
+    if (barSpacing !== undefined && gridSpacing === undefined) {
+      warnDeprecatedBarSpacingOnce()
+    }
+  }, [barSpacing, gridSpacing])
   const [tooltip, setTooltip] = useState<{
     visible: boolean
     position: [number, number, number]
@@ -66,12 +78,12 @@ export const Surface3DChart: FC<Surface3DChartProps> = ({
         normalizedData,
         barWidth: BAR_WIDTH,
         barDepth: BAR_DEPTH,
-        barSpacing,
+        barSpacing: spacing,
         maxHeight,
         xLabels,
         zLabels,
       }),
-    [normalizedData, barSpacing, maxHeight, xLabels, zLabels]
+    [normalizedData, spacing, maxHeight, xLabels, zLabels]
   )
 
   const centerPoint = useMemo(() => {
@@ -101,7 +113,7 @@ export const Surface3DChart: FC<Surface3DChartProps> = ({
         zIndex,
         BAR_WIDTH,
         BAR_DEPTH,
-        barSpacing
+        spacing
       )
       const yPos = value * scaleFactor + 0.5
 
@@ -133,6 +145,7 @@ export const Surface3DChart: FC<Surface3DChartProps> = ({
       xLabels,
       yLabel,
       zLabels,
+      spacing,
     ]
   )
 
@@ -167,7 +180,7 @@ export const Surface3DChart: FC<Surface3DChartProps> = ({
           scaleFactor={scaleFactor}
           barWidth={BAR_WIDTH}
           barDepth={BAR_DEPTH}
-          barSpacing={barSpacing}
+          barSpacing={spacing}
           colorStops={surfaceColorStops}
           highlightColor={surfaceHighlightColor}
           showWireframe={showWireframe}
@@ -191,8 +204,8 @@ export const Surface3DChart: FC<Surface3DChartProps> = ({
           if (!zLabels[zIndex]) return null
 
           const rightEdgePosition =
-            normalizedData[0].length * (BAR_WIDTH + barSpacing)
-          const zPos = zIndex * (BAR_DEPTH + barSpacing) + BAR_DEPTH / 2
+            normalizedData[0].length * (BAR_WIDTH + spacing)
+          const zPos = zIndex * (BAR_DEPTH + spacing) + BAR_DEPTH / 2
 
           return (
             <Text
@@ -214,10 +227,10 @@ export const Surface3DChart: FC<Surface3DChartProps> = ({
         normalizedData[0]?.map((_, xIndex) => {
           if (!xLabels[xIndex]) return null
 
-          const xPos = xIndex * (BAR_WIDTH + barSpacing)
+          const xPos = xIndex * (BAR_WIDTH + spacing)
           const endEdgePosition =
-            normalizedData.length * (BAR_DEPTH + barSpacing) -
-            barSpacing +
+            normalizedData.length * (BAR_DEPTH + spacing) -
+            spacing +
             BAR_DEPTH
 
           return (

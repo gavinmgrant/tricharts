@@ -35,7 +35,7 @@ const meta = {
         defaultValue: { summary: "blue" },
       },
     },
-    barSpacing: { control: { type: "range", min: 0, max: 2, step: 0.1 } },
+    gridSpacing: { control: { type: "range", min: 0, max: 2, step: 0.1 } },
   },
   decorators: [withContainer],
 } satisfies Meta<typeof Bar3DChart>
@@ -71,7 +71,7 @@ export const MultiRowBar: Story = {
     zLabel: "Year",
     xLabels: ["A", "B", "C", "D", "E"],
     zLabels: ["2022", "2023", "2024"],
-    barSpacing: 1.5,
+    gridSpacing: 1.5,
   },
 }
 

@@ -18,6 +18,9 @@ export type BarChartData = number[][] | number[]
 
 export type Bar3DChartProps = {
   data: BarChartData
+  /** Spacing between bar footprints on the X and Z axes. */
+  gridSpacing?: number
+  /** @deprecated Use `gridSpacing` instead. */
   barSpacing?: number
   colorScheme?: string | string[] | string[][]
   showGrid?: boolean

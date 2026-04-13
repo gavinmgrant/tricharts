@@ -3,6 +3,9 @@ import type { BarChartData } from "@/components/charts/Bar3DChart/types"
 export type Surface3DChartProps = {
   /** Two-dimensional grid of values. Requires at least 2×2 points (each axis ≥ 2). */
   data: BarChartData
+  /** Spacing between grid sample points on the X and Z axes. */
+  gridSpacing?: number
+  /** @deprecated Use `gridSpacing` instead. */
   barSpacing?: number
   colorScheme?: string | string[] | string[][]
   showGrid?: boolean

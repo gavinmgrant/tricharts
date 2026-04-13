@@ -170,7 +170,7 @@ function MultiRowBar() {
         zLabel="Year"
         xLabels={["A", "B", "C", "D", "E"]}
         zLabels={["2022", "2023", "2024"]}
-        barSpacing={1.5}
+        gridSpacing={1.5}
       />
     </div>
   )
@@ -204,7 +204,7 @@ function SurfaceExample() {
         zLabels={["R1", "R2", "R3", "R4"]}
         showSurfacePoints={true}
         surfacePointRadius={0.12}
-        barSpacing={0.8}
+        gridSpacing={0.8}
       />
     </div>
   )
@@ -252,7 +252,8 @@ function InteractiveChart() {
 | ------------- | ------------------------ | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `data`        | `number[] or number[][]` | required    | Data to visualize. Can be a 1D array for a single series or a 2D array for multiple series.                                                                        |
 | `colorScheme` | `String`                 | `"blue"`    | Color scheme for bars. Options: "blue", "green", "red", "purple", "orange", "rainbow", "random" or a hex color string like "#ff5733".                              |
-| `barSpacing`  | `number`                 | `1`         | The spacing between the bars.                                                                                                                                      |
+| `gridSpacing` | `number`                 | `1`         | Spacing between bar footprints on the X and Z axes.                                                                                                                |
+| `barSpacing`  | `number`                 | —           | **Deprecated.** Use `gridSpacing`. Same behavior; kept for backward compatibility.                                                                                  |
 | `showGrid`    | `boolean`                | `true`      | Whether to show the grid lines.                                                                                                                                    |
 | `showLabels`  | `boolean`                | `true`      | Whether to show value labels on top of each bar.                                                                                                                   |
 | `xLabel`      | `string`                 | `undefined` | Label for the X-axis.                                                                                                                                              |
@@ -269,7 +270,8 @@ function InteractiveChart() {
 | -------------------- | ------------------------ | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `data`               | `number[] or number[][]` | required    | Data to visualize as a surface. Surface charts require at least a `2 x 2` grid of values.                                                                        |
 | `colorScheme`        | `String`                 | `"blue"`    | Base color or gradient palette for the surface. Supports named schemes, a hex color string, an array of color stops, or `"random"`.                              |
-| `barSpacing`         | `number`                 | `1`         | Spacing between grid points on the X and Z axes.                                                                                                                   |
+| `gridSpacing`        | `number`                 | `1`         | Spacing between grid sample points on the X and Z axes.                                                                                                            |
+| `barSpacing`         | `number`                 | —           | **Deprecated.** Use `gridSpacing`. Same behavior; kept for backward compatibility.                                                                                  |
 | `showGrid`           | `boolean`                | `true`      | Whether to show the floor and vertical grid lines.                                                                                                                 |
 | `showLabels`         | `boolean`                | `true`      | Whether to show a numeric value label above each grid vertex on the surface (similar to value labels on `Bar3DChart`).                                            |
 | `showWireframe`      | `boolean`                | `false`     | Whether to render the surface mesh in wireframe mode.                                                                                                              |

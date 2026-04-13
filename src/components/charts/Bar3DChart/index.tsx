@@ -1,4 +1,4 @@
-import { FC, useMemo, useState } from "react"
+import { FC, useEffect, useMemo, useState } from "react"
 import { Shared3DScene } from "@/components/Shared3DScene"
 import {
   BAR_DEPTH,
@@ -9,6 +9,10 @@ import {
   computeScaleFactor,
   normalizeBarChartData,
 } from "@/components/charts/shared/grid3DChartLayout"
+import {
+  resolveGridSpacing,
+  warnDeprecatedBarSpacingOnce,
+} from "@/components/charts/shared/resolveGridSpacing"
 import { Tooltip } from "@/components/helpers/Tooltip"
 import { TooltipContent } from "@/components/helpers/Tooltip/TooltipContent"
 import { Text } from "@react-three/drei"
@@ -17,7 +21,8 @@ import type { Bar3DChartProps } from "./types"
 
 export const Bar3DChart: FC<Bar3DChartProps> = ({
   data,
-  barSpacing = 1,
+  gridSpacing,
+  barSpacing,
   colorScheme = "blue",
   showGrid = true,
   showLabels = true,
@@ -29,6 +34,13 @@ export const Bar3DChart: FC<Bar3DChartProps> = ({
   maxHeight = 10,
   onBarClick,
 }) => {
+  const spacing = resolveGridSpacing(gridSpacing, barSpacing, 1)
+
+  useEffect(() => {
+    if (barSpacing !== undefined && gridSpacing === undefined) {
+      warnDeprecatedBarSpacingOnce()
+    }
+  }, [barSpacing, gridSpacing])
   const [tooltip, setTooltip] = useState<{
     visible: boolean
     position: [number, number, number]
@@ -48,7 +60,7 @@ export const Bar3DChart: FC<Bar3DChartProps> = ({
       zIndex,
       BAR_WIDTH,
       BAR_DEPTH,
-      barSpacing
+      spacing
     )
     const yPos = value * scaleFactor + 0.5
 
@@ -98,12 +110,12 @@ export const Bar3DChart: FC<Bar3DChartProps> = ({
         normalizedData,
         barWidth: BAR_WIDTH,
         barDepth: BAR_DEPTH,
-        barSpacing,
+        barSpacing: spacing,
         maxHeight,
         xLabels,
         zLabels,
       }),
-    [normalizedData, barSpacing, maxHeight, xLabels, zLabels]
+    [normalizedData, spacing, maxHeight, xLabels, zLabels]
   )
 
   const centerPoint = useMemo(() => {
@@ -141,7 +153,7 @@ export const Bar3DChart: FC<Bar3DChartProps> = ({
             zIndex={zIndex}
             barWidth={BAR_WIDTH}
             barDepth={BAR_DEPTH}
-            barSpacing={barSpacing}
+            barSpacing={spacing}
             color={barColors[zIndex][xIndex]}
             showLabel={showLabels}
             onClick={(value) => handleBarClick(value, xIndex, zIndex)}
@@ -162,8 +174,8 @@ export const Bar3DChart: FC<Bar3DChartProps> = ({
           if (!zLabels[zIndex]) return null
 
           const rightEdgePosition =
-            normalizedData[0].length * (BAR_WIDTH + barSpacing)
-          const zPos = zIndex * (BAR_DEPTH + barSpacing) + BAR_DEPTH / 2
+            normalizedData[0].length * (BAR_WIDTH + spacing)
+          const zPos = zIndex * (BAR_DEPTH + spacing) + BAR_DEPTH / 2
 
           return (
             <Text
@@ -186,9 +198,9 @@ export const Bar3DChart: FC<Bar3DChartProps> = ({
         normalizedData[0].map((_, xIndex) => {
           if (!xLabels[xIndex]) return null
 
-          const xPos = xIndex * (BAR_WIDTH + barSpacing)
+          const xPos = xIndex * (BAR_WIDTH + spacing)
           const endEdgePosition =
-            normalizedData.length * (BAR_DEPTH + barSpacing) - barSpacing + BAR_DEPTH
+            normalizedData.length * (BAR_DEPTH + spacing) - spacing + BAR_DEPTH
 
           return (
             <Text
