@@ -35,6 +35,18 @@ yarn add tricharts react react-dom @react-three/fiber @react-three/drei three
 pnpm add tricharts react react-dom @react-three/fiber @react-three/drei three
 ```
 
+## Chart Types
+
+TriCharts currently includes two chart types: `Bar3DChart` for 3D bar charts and `Surface3DChart` for continuous 3D surfaces.
+
+### Bar3DChart
+
+A 3D bar chart is a chart that displays data as a series of bars, with the height of each bar representing the value of the data point.
+
+### Surface3DChart
+
+A 3D surface chart is a chart that displays data as a surface, with the height of the surface representing the value of the data point.
+
 ## Basic Usage
 
 ```jsx

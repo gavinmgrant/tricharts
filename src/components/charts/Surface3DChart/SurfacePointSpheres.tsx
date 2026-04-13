@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react"
+import type { ThreeEvent } from "@react-three/fiber"
 import { useFrame } from "@react-three/fiber"
 import * as THREE from "three"
 import {
@@ -19,14 +20,13 @@ export type SurfacePointSpheresProps = {
   pointRadius?: number
   /** Shared intro animation progress (0 → 1) from the parent surface mesh. */
   easedProgressRef?: React.MutableRefObject<number>
+  /** Picks use `event.instanceId`; map with `surfaceInstanceIdToCell`. */
+  onClick?: (event: ThreeEvent<MouseEvent>) => void
 }
 
 const DEFAULT_POINT_COLOR = "#f1f5f9"
 
-/**
- * Instanced spheres at each surface grid vertex. Raycasting is disabled so
- * pointer events still hit the surface mesh beneath.
- */
+/** Instanced spheres at each surface grid vertex; spheres are the click targets. */
 export function SurfacePointSpheres({
   normalizedData,
   scaleFactor,
@@ -37,6 +37,7 @@ export function SurfacePointSpheres({
   pointColor,
   pointRadius,
   easedProgressRef,
+  onClick,
 }: SurfacePointSpheresProps) {
   const positions = useMemo(
     () =>
@@ -137,14 +138,6 @@ export function SurfacePointSpheres({
     }
   }, [geometry, material])
 
-  useEffect(() => {
-    const mesh = meshRef.current
-    if (!mesh) return
-    mesh.raycast = () => {
-      /* visual only */
-    }
-  }, [count])
-
   if (count === 0) return null
 
   return (
@@ -152,6 +145,10 @@ export function SurfacePointSpheres({
       ref={meshRef}
       args={[geometry, material, count]}
       frustumCulled={false}
+      onClick={(e) => {
+        e.stopPropagation()
+        onClick?.(e)
+      }}
     />
   )
 }

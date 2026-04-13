@@ -1,4 +1,4 @@
-import { FC, useMemo, useState } from "react"
+import { FC, useCallback, useMemo, useState } from "react"
 import {
   BAR_DEPTH,
   BAR_WIDTH,
@@ -14,7 +14,7 @@ import { Tooltip } from "@/components/helpers/Tooltip"
 import { TooltipContent } from "@/components/helpers/Tooltip/TooltipContent"
 import { Text } from "@react-three/drei"
 import type { ThreeEvent } from "@react-three/fiber"
-import { nearestBarCellFromWorldXZ } from "./nearestCell"
+import { surfaceInstanceIdToCell } from "./surfaceCellIndex"
 import { SurfaceMesh } from "./SurfaceMesh"
 import type { Surface3DChartProps } from "./types"
 
@@ -91,52 +91,61 @@ export const Surface3DChart: FC<Surface3DChartProps> = ({
   const cols = rows > 0 ? normalizedData[0].length : 0
   const surfaceGridOk = hasMinimumSurfaceGrid(normalizedData)
 
-  const handleSurfaceClick = (e: ThreeEvent<MouseEvent>) => {
-    e.stopPropagation()
-    if (!surfaceGridOk) return
+  const openDisplayForCell = useCallback(
+    (xIndex: number, zIndex: number) => {
+      const value = normalizedData[zIndex][xIndex]
 
-    const p = e.point
-    const { xIndex, zIndex } = nearestBarCellFromWorldXZ(
-      p.x,
-      p.z,
-      rows,
-      cols,
-      BAR_WIDTH,
-      BAR_DEPTH,
-      barSpacing
-    )
-    const value = normalizedData[zIndex][xIndex]
+      const [xPos, zPos] = barCellCenterXZ(
+        xIndex,
+        zIndex,
+        BAR_WIDTH,
+        BAR_DEPTH,
+        barSpacing
+      )
+      const yPos = value * scaleFactor + 0.5
 
-    const [xPos, zPos] = barCellCenterXZ(
-      xIndex,
-      zIndex,
-      BAR_WIDTH,
-      BAR_DEPTH,
-      barSpacing
-    )
-    const yPos = value * scaleFactor + 0.5
+      setTooltip({
+        visible: true,
+        position: [xPos, yPos, zPos],
+        content: (
+          <TooltipContent
+            value={value}
+            xLabel={xLabels?.[xIndex] ?? ""}
+            yLabel={yLabel}
+            zLabel={zLabels?.[zIndex] ?? ""}
+          />
+        ),
+      })
 
-    setTooltip({
-      visible: true,
-      position: [xPos, yPos, zPos],
-      content: (
-        <TooltipContent
-          value={value}
-          xLabel={xLabels?.[xIndex] ?? ""}
-          yLabel={yLabel}
-          zLabel={zLabels?.[zIndex] ?? ""}
-        />
-      ),
-    })
+      onBarClick?.({
+        value,
+        xIndex,
+        zIndex,
+        xLabel: xLabels?.[xIndex],
+        zLabel: zLabels?.[zIndex],
+      })
+    },
+    [
+      normalizedData,
+      onBarClick,
+      scaleFactor,
+      xLabels,
+      yLabel,
+      zLabels,
+    ]
+  )
 
-    onBarClick?.({
-      value,
-      xIndex,
-      zIndex,
-      xLabel: xLabels?.[xIndex],
-      zLabel: zLabels?.[zIndex],
-    })
-  }
+  const handleSurfacePointClick = useCallback(
+    (e: ThreeEvent<MouseEvent>) => {
+      if (!surfaceGridOk) return
+      const id = e.instanceId
+      if (id === undefined) return
+      const cell = surfaceInstanceIdToCell(id, rows, cols)
+      if (!cell) return
+      openDisplayForCell(cell.xIndex, cell.zIndex)
+    },
+    [cols, openDisplayForCell, rows, surfaceGridOk]
+  )
 
   const closeTooltip = () => {
     setTooltip((prev) => ({ ...prev, visible: false }))
@@ -164,7 +173,7 @@ export const Surface3DChart: FC<Surface3DChartProps> = ({
           showSurfacePoints={showSurfacePoints}
           surfacePointColor={surfacePointColor}
           surfacePointRadius={surfacePointRadius}
-          onClick={handleSurfaceClick}
+          onSurfacePointClick={handleSurfacePointClick}
         />
       )}
 

@@ -18,7 +18,7 @@ type SurfaceMeshProps = {
   showSurfacePoints?: boolean
   surfacePointColor?: string
   surfacePointRadius?: number
-  onClick?: (event: ThreeEvent<MouseEvent>) => void
+  onSurfacePointClick?: (event: ThreeEvent<MouseEvent>) => void
 }
 
 export const SurfaceMesh: FC<SurfaceMeshProps> = ({
@@ -33,7 +33,7 @@ export const SurfaceMesh: FC<SurfaceMeshProps> = ({
   showSurfacePoints = true,
   surfacePointColor,
   surfacePointRadius,
-  onClick,
+  onSurfacePointClick,
 }) => {
   const [hovered, setHovered] = useState(false)
   const groupRef = useRef<THREE.Group>(null)
@@ -73,7 +73,6 @@ export const SurfaceMesh: FC<SurfaceMeshProps> = ({
     <group ref={groupRef}>
       <mesh
         geometry={geometry}
-        onClick={onClick}
         onPointerOver={() => setHovered(true)}
         onPointerOut={() => setHovered(false)}
       >
@@ -99,6 +98,7 @@ export const SurfaceMesh: FC<SurfaceMeshProps> = ({
           pointColor={surfacePointColor}
           pointRadius={surfacePointRadius}
           easedProgressRef={easedProgressRef}
+          onClick={onSurfacePointClick}
         />
       )}
     </group>
