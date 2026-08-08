@@ -1,12 +1,23 @@
-import { useRef, useState, useEffect } from "react"
+import { useEffect, useLayoutEffect, useRef } from "react"
 import { useFrame } from "@react-three/fiber"
 import * as THREE from "three"
+
+function easeInOutCubic(t: number): number {
+  return t < 0.5 ? 4 * t ** 3 : 1 - Math.pow(-2 * t + 2, 3) / 2
+}
+
+function formatDisplayValue(value: number): string {
+  if (Number.isInteger(value)) return Math.round(value).toString()
+  return value.toFixed(1).replace(/\.?0+$/, "")
+}
+
+type TroikaLabel = THREE.Object3D & { text?: string }
 
 export const use3DScaling = (
   targetHeight: number,
   options?: {
     duration?: number
-    labelRef?: React.RefObject<any>
+    labelRef?: React.RefObject<TroikaLabel | null>
     formatLabel?: boolean
     originalValue?: number
   }
@@ -20,90 +31,74 @@ export const use3DScaling = (
 
   const meshRef = useRef<THREE.Mesh>(null!)
   const progressRef = useRef(0)
-  const initialLabelZPos = useRef<number | null>(null)
   const previousTargetHeightRef = useRef(targetHeight)
+  const lastDisplayValueRef = useRef<string | null>(null)
 
-  // Add states to track current animation values
-  const [currentHeight, setCurrentHeight] = useState(0)
-  const [displayValue, setDisplayValue] = useState("0")
-
-  // Reset animation when targetHeight changes
   useEffect(() => {
     if (previousTargetHeightRef.current !== targetHeight) {
       progressRef.current = 0
+      lastDisplayValueRef.current = null
       previousTargetHeightRef.current = targetHeight
     }
   }, [targetHeight])
 
+  useLayoutEffect(() => {
+    const mesh = meshRef.current
+    if (!mesh) return
+    mesh.scale.y = 0
+    mesh.position.y = 0
+  }, [targetHeight])
+
   useFrame((_, delta) => {
-    const isAnimating = progressRef.current < 1
-    let easedProgress = 1
-    let currentBarHeight = targetHeight
+    if (progressRef.current >= 1) return
 
-    if (isAnimating) {
-      // Update progress based on delta time and duration
-      progressRef.current = Math.min(progressRef.current + delta / duration, 1)
+    progressRef.current = Math.min(progressRef.current + delta / duration, 1)
+    const easedProgress = easeInOutCubic(progressRef.current)
+    const currentBarHeight = easedProgress * targetHeight
 
-      // Apply easing function for smooth animation
-      easedProgress =
-        progressRef.current < 0.5
-          ? 4 * progressRef.current ** 3
-          : 1 - Math.pow(-2 * progressRef.current + 2, 3) / 2
+    const mesh = meshRef.current
+    if (mesh) {
+      mesh.scale.y = easedProgress
+      mesh.position.y = currentBarHeight / 2
+    }
 
-      // Calculate current animated values
-      currentBarHeight = easedProgress * targetHeight
-      setCurrentHeight(currentBarHeight)
+    const label = labelRef?.current
+    if (label) {
+      label.position.y = currentBarHeight + 0.01
 
-      // Update mesh scaling
-      if (meshRef.current) {
-        meshRef.current.scale.y = easedProgress
-        meshRef.current.position.y = currentBarHeight / 2
-      }
-
-      // Format and set display value
       if (formatLabel) {
-        const displayOriginalValue = easedProgress * originalValue
-        setDisplayValue(
-          Number.isInteger(displayOriginalValue)
-            ? Math.round(displayOriginalValue).toString()
-            : displayOriginalValue.toFixed(1).replace(/\.?0+$/, "")
-        )
-      }
-    } else {
-      // Animation complete - set final values
-      currentBarHeight = targetHeight
-      setCurrentHeight(targetHeight)
-      if (meshRef.current) {
-        meshRef.current.scale.y = 1
-        meshRef.current.position.y = targetHeight / 2
-      }
-      if (formatLabel) {
-        setDisplayValue(
-          Number.isInteger(originalValue)
-            ? Math.round(originalValue).toString()
-            : originalValue.toFixed(1).replace(/\.?0+$/, "")
-        )
+        const displayValue = formatDisplayValue(easedProgress * originalValue)
+        if (displayValue !== lastDisplayValueRef.current) {
+          lastDisplayValueRef.current = displayValue
+          if (label.text !== undefined) {
+            label.text = displayValue
+          }
+        }
       }
     }
 
-    // Always update label position (even after animation completes)
-    // This ensures the label stays at the top when height changes
-    if (labelRef?.current) {
-      // Store initial z position on first frame if not already stored
-      if (initialLabelZPos.current === null) {
-        initialLabelZPos.current = labelRef.current.position.z
+    if (progressRef.current >= 1) {
+      if (mesh) {
+        mesh.scale.y = 1
+        mesh.position.y = targetHeight / 2
       }
-
-      // Update position while PRESERVING the original z coordinate
-      // Position label at the top of the bar
-      labelRef.current.position.y = currentBarHeight + 0.01
+      if (label) {
+        label.position.y = targetHeight + 0.01
+        if (formatLabel) {
+          const finalValue = formatDisplayValue(originalValue)
+          if (finalValue !== lastDisplayValueRef.current) {
+            lastDisplayValueRef.current = finalValue
+            if (label.text !== undefined) {
+              label.text = finalValue
+            }
+          }
+        }
+      }
     }
   })
 
   return {
     meshRef,
     progressRef,
-    currentHeight,
-    displayValue,
   }
 }
