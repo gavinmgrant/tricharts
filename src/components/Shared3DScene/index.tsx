@@ -1,8 +1,10 @@
-import React from "react"
+import React, { useMemo } from "react"
 import { Canvas } from "@react-three/fiber"
-import { MapControls, Grid, Text } from "@react-three/drei"
+import { MapControls, Grid } from "@react-three/drei"
+import * as THREE from "three"
 import { normalizeLabel } from "@/utils/labels"
 import { useChartCamera } from "@/hooks/useChartCamera"
+import { CameraFit, SceneLabel } from "./CameraFit"
 import type { SceneProps } from "./types"
 
 export const Shared3DScene: React.FC<SceneProps> = ({
@@ -29,11 +31,39 @@ export const Shared3DScene: React.FC<SceneProps> = ({
     cameraTarget
   )
 
+  // Everything inside the grid walls; labels are added by CameraFit itself.
+  const fitBounds = useMemo(
+    () => ({
+      min: new THREE.Vector3(-offset, 0, -offset),
+      max: new THREE.Vector3(
+        gridWidth - offset,
+        gridHeight,
+        gridDepth - offset
+      ),
+    }),
+    [gridWidth, gridHeight, gridDepth, offset]
+  )
+
+  // Keep the existing viewing angle; CameraFit only solves for distance/centre.
+  const [cx, cy, cz] = calculatedCameraPosition
+  const [tx, ty, tz] = calculatedCameraTarget
+  const fitDirection = useMemo(
+    () => new THREE.Vector3(tx - cx, ty - cy, tz - cz).normalize(),
+    [cx, cy, cz, tx, ty, tz]
+  )
+
+  const fitContentKey = JSON.stringify([
+    gridWidth,
+    gridHeight,
+    gridDepth,
+    axisLabels,
+  ])
+
   // Calculate label positions based on chart dimensions and grid size
   const getLabelPosition = (
     axisType: "x" | "y" | "z",
     basePos: [number, number, number],
-    offset: number
+    labelOffset: number
   ) => {
     if (autoPosition && chartDimensions) {
       const { width, height, depth } = chartDimensions
@@ -41,8 +71,11 @@ export const Shared3DScene: React.FC<SceneProps> = ({
       switch (axisType) {
         case "x":
           return [basePos[1] - 1.5, basePos[1], depth]
-        case "y":
-          return [basePos[0] - offset, height, basePos[2] - offset]
+        case "y": {
+          // Beside the left wall's front vertical edge, nudged toward screen-left.
+          const nudge = labelOffset / Math.SQRT2
+          return [-offset - nudge, height / 2, depth - offset + nudge]
+        }
         case "z":
           return [width, basePos[1], basePos[1] - 1.5]
         default:
@@ -51,9 +84,9 @@ export const Shared3DScene: React.FC<SceneProps> = ({
     }
 
     return [
-      basePos[0] + (axisType === "z" ? offset : 0),
-      basePos[1] + (axisType === "y" ? offset : 0),
-      basePos[2] + (axisType === "x" ? offset : 0),
+      basePos[0] + (axisType === "z" ? labelOffset : 0),
+      basePos[1] + (axisType === "y" ? labelOffset : 0),
+      basePos[2] + (axisType === "x" ? labelOffset : 0),
     ]
   }
 
@@ -65,7 +98,8 @@ export const Shared3DScene: React.FC<SceneProps> = ({
       case "x":
         return [-Math.PI / 2, 0, 0]
       case "y":
-        return [0, 0, Math.PI / 2]
+        // Reads bottom-to-top, turned to face the default 45° camera.
+        return [0, Math.PI / 4, Math.PI / 2]
       case "z":
         return [-Math.PI / 2, 0, Math.PI / 2]
       default:
@@ -93,7 +127,9 @@ export const Shared3DScene: React.FC<SceneProps> = ({
 
       {/* Controls */}
       <MapControls
-        target={autoPosition ? calculatedCameraTarget : cameraTarget}
+        makeDefault
+        // With autoPosition, CameraFit owns the orbit target.
+        {...(!autoPosition && { target: cameraTarget })}
         maxPolarAngle={Math.PI / 2}
         minAzimuthAngle={0}
         maxAzimuthAngle={Math.PI / 2}
@@ -141,49 +177,63 @@ export const Shared3DScene: React.FC<SceneProps> = ({
         </>
       )}
 
-      {/* Axis Labels */}
-      {Object.entries(axisLabels).map(([axis, labelData]) => {
-        const axisType = axis as "x" | "y" | "z"
-        const basePosition: [number, number, number] = (() => {
-          switch (axisType) {
-            case "x":
-              return [gridWidth + 20 - offset, 0, 0]
-            case "y":
-              return [-offset, gridHeight, 0]
-            case "z":
-              return [-offset, 0, gridDepth]
-            default:
-              return [0, 0, 0]
-          }
-        })()
+      <MaybeCameraFit
+        enabled={autoPosition && !!chartDimensions}
+        bounds={fitBounds}
+        direction={fitDirection}
+        contentKey={fitContentKey}
+      >
+        {/* Axis Labels */}
+        {Object.entries(axisLabels).map(([axis, labelData]) => {
+          const axisType = axis as "x" | "y" | "z"
+          const basePosition: [number, number, number] = (() => {
+            switch (axisType) {
+              case "x":
+                return [gridWidth + 20 - offset, 0, 0]
+              case "y":
+                return [-offset, gridHeight, 0]
+              case "z":
+                return [-offset, 0, gridDepth]
+              default:
+                return [0, 0, 0]
+            }
+          })()
 
-        const label = normalizeLabel(labelData, basePosition)
-        if (!label) return null
+          const label = normalizeLabel(labelData, basePosition)
+          if (!label) return null
 
-        const position = getLabelPosition(
-          axisType,
-          label.position,
-          label.offset
-        )
+          const position = getLabelPosition(
+            axisType,
+            label.position,
+            label.offset
+          )
 
-        return (
-          <Text
-            key={axis}
-            position={position as [number, number, number]}
-            rotation={getLabelRotation(axisType)}
-            fontSize={0.75}
-            fontWeight={700}
-            color={label.color}
-            anchorX={axis === "x" ? "right" : "left"}
-            anchorY="middle"
-          >
-            {label.text}
-          </Text>
-        )
-      })}
+          return (
+            <SceneLabel
+              key={axis}
+              position={position as [number, number, number]}
+              rotation={getLabelRotation(axisType)}
+              fontSize={0.75}
+              fontWeight={700}
+              color={label.color}
+              anchorX={
+                axis === "x" ? "right" : axis === "y" ? "center" : "left"
+              }
+              anchorY="middle"
+            >
+              {label.text}
+            </SceneLabel>
+          )
+        })}
 
-      {/* Chart-specific children */}
-      {children}
+        {/* Chart-specific children */}
+        {children}
+      </MaybeCameraFit>
     </Canvas>
   )
 }
+
+const MaybeCameraFit: React.FC<
+  React.ComponentProps<typeof CameraFit> & { enabled: boolean }
+> = ({ enabled, children, ...props }) =>
+  enabled ? <CameraFit {...props}>{children}</CameraFit> : <>{children}</>

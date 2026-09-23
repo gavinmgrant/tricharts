@@ -14,9 +14,9 @@ import {
   warnDeprecatedBarSpacingOnce,
 } from "@/components/charts/shared/resolveGridSpacing"
 import { Shared3DScene } from "@/components/Shared3DScene"
+import { SceneLabel } from "@/components/Shared3DScene/CameraFit"
 import { Tooltip } from "@/components/helpers/Tooltip"
 import { TooltipContent } from "@/components/helpers/Tooltip/TooltipContent"
-import { Text } from "@react-three/drei"
 import type { ThreeEvent } from "@react-three/fiber"
 import { surfaceInstanceIdToCell } from "./surfaceCellIndex"
 import { SurfaceMesh } from "./SurfaceMesh"
@@ -208,7 +208,7 @@ export const Surface3DChart: FC<Surface3DChartProps> = ({
           const zPos = zIndex * (BAR_DEPTH + spacing) + BAR_DEPTH / 2
 
           return (
-            <Text
+            <SceneLabel
               key={`z-label-${zIndex}`}
               position={[rightEdgePosition, 0, zPos - BAR_DEPTH / 2]}
               rotation={[-Math.PI / 2, 0, 0]}
@@ -219,7 +219,7 @@ export const Surface3DChart: FC<Surface3DChartProps> = ({
               anchorY="middle"
             >
               {zLabels[zIndex]}
-            </Text>
+            </SceneLabel>
           )
         })}
 
@@ -234,7 +234,7 @@ export const Surface3DChart: FC<Surface3DChartProps> = ({
             BAR_DEPTH
 
           return (
-            <Text
+            <SceneLabel
               key={`x-label-${xIndex}`}
               position={[xPos, 0, endEdgePosition]}
               rotation={[-Math.PI / 2, 0, Math.PI / 2]}
@@ -245,7 +245,7 @@ export const Surface3DChart: FC<Surface3DChartProps> = ({
               anchorY="middle"
             >
               {xLabels[xIndex]}
-            </Text>
+            </SceneLabel>
           )
         })}
     </Shared3DScene>
