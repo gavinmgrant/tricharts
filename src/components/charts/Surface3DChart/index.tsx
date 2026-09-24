@@ -40,6 +40,9 @@ export const Surface3DChart: FC<Surface3DChartProps> = ({
   zLabels,
   maxHeight = 10,
   onBarClick,
+  showControls,
+  controlsPosition,
+  scrollZoom,
 }) => {
   const spacing = resolveGridSpacing(gridSpacing, barSpacing, 1)
 
@@ -173,6 +176,9 @@ export const Surface3DChart: FC<Surface3DChartProps> = ({
       cameraTarget={centerPoint}
       autoPosition={true}
       axisLabels={axisLabels}
+      showControls={showControls}
+      controlsPosition={controlsPosition}
+      scrollZoom={scrollZoom}
     >
       {surfaceGridOk && (
         <SurfaceMesh

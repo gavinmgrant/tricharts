@@ -61,6 +61,15 @@ const meta = {
     showLabels: { control: { type: "boolean" } },
     showSurfacePoints: { control: { type: "boolean" } },
     surfacePointRadius: { control: { type: "range", min: 0.04, max: 0.3, step: 0.01 } },
+    showControls: { control: { type: "boolean" } },
+    controlsPosition: {
+      control: { type: "select" },
+      options: ["top-left", "top-right", "bottom-left", "bottom-right"],
+    },
+    scrollZoom: {
+      control: { type: "inline-radio" },
+      options: ["modifier", "always"],
+    },
   },
   decorators: [withContainer],
 } satisfies Meta<typeof Surface3DChart>

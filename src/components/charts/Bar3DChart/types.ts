@@ -1,3 +1,5 @@
+import type { ChartControlsProps } from "@/components/Shared3DScene/types"
+
 export type BarProps = {
   height: number
   originalValue: number
@@ -16,7 +18,7 @@ export type BarProps = {
 
 export type BarChartData = number[][] | number[]
 
-export type Bar3DChartProps = {
+export type Bar3DChartProps = ChartControlsProps & {
   data: BarChartData
   /** Spacing between bar footprints on the X and Z axes. */
   gridSpacing?: number

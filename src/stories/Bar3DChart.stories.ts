@@ -36,6 +36,15 @@ const meta = {
       },
     },
     gridSpacing: { control: { type: "range", min: 0, max: 2, step: 0.1 } },
+    showControls: { control: { type: "boolean" } },
+    controlsPosition: {
+      control: { type: "select" },
+      options: ["top-left", "top-right", "bottom-left", "bottom-right"],
+    },
+    scrollZoom: {
+      control: { type: "inline-radio" },
+      options: ["modifier", "always"],
+    },
   },
   decorators: [withContainer],
 } satisfies Meta<typeof Bar3DChart>

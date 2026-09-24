@@ -1,6 +1,7 @@
 import type { BarChartData } from "@/components/charts/Bar3DChart/types"
+import type { ChartControlsProps } from "@/components/Shared3DScene/types"
 
-export type Surface3DChartProps = {
+export type Surface3DChartProps = ChartControlsProps & {
   /** Two-dimensional grid of values. Requires at least 2×2 points (each axis ≥ 2). */
   data: BarChartData
   /** Spacing between grid sample points on the X and Z axes. */

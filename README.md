@@ -127,17 +127,22 @@ The camera automatically frames the chart and all of its labels, and refits when
 
 ## Controls
 
-| Action     | Mouse / trackpad | Touch       |
-| ---------- | ---------------- | ----------- |
-| Rotate     | Drag             | One finger  |
-| Pan        | Right-drag       | Two fingers |
-| Zoom       | Scroll or pinch  | Pinch       |
-| Reset view | Double-click     | Double-tap  |
+Each chart has a toolbar in the bottom-right corner to rotate, zoom and reset the view, so no gestures are needed. Pointing at a chart for the first time shows a short hint for the gestures.
 
+| Action     | Mouse / trackpad          | Touch       | Toolbar |
+| ---------- | ------------------------- | ----------- | ------- |
+| Rotate     | Drag                      | One finger  | ↺ ↻     |
+| Pan        | Right-drag                | Two fingers |         |
+| Zoom       | ⌘/Ctrl + scroll, or pinch | Pinch       | − +     |
+| Reset view | Double-click              | Double-tap  | ⛶       |
+
+- **Scrolling** over a chart scrolls the page, so charts don't trap the scroll wheel. Hold ⌘ (Mac) or Ctrl while scrolling, or pinch on a trackpad, to zoom. Set `scrollZoom="always"` to zoom on plain scrolling instead.
 - **Zoom** moves toward the cursor. Zooming out stops once the whole chart is in view, and zooming all the way out returns to the starting view.
 - **Rotation** is limited to the front quarter of the chart, so the grid walls stay behind the data.
 - **Panning** stays on the chart, so it can't be dragged out of view.
 - Once you rotate, pan or zoom, the chart no longer refits on resize, until you reset the view or the data changes.
+
+Hide the toolbar with `showControls={false}`, or move it with `controlsPosition`. Its colors can be themed with CSS custom properties on any ancestor: `--tricharts-controls-bg`, `--tricharts-controls-border`, `--tricharts-controls-color`, `--tricharts-controls-hover` and `--tricharts-controls-focus`.
 
 ## Chart Examples
 
@@ -301,6 +306,16 @@ function InteractiveChart() {
 | `zLabels`            | `string[]`               | `undefined` | Labels for individual Z-axis ticks.                                                                                                                                |
 | `maxHeight`          | `number`                 | `10`        | Maximum height of the tallest point on the surface. Other values are scaled proportionally.                                                                       |
 | `onBarClick`         | `function`               | `undefined` | Callback triggered when the surface is clicked. Receives the nearest sampled point as `{ value, xIndex, zIndex, xLabel, zLabel }`.                               |
+
+### Interaction Props
+
+Both charts also accept these props:
+
+| Prop Name          | Type                                                                 | Default          | Description                                                                                                  |
+| ------------------ | -------------------------------------------------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------ |
+| `showControls`     | `boolean`                                                            | `true`           | Show the on-screen rotate, zoom and reset buttons.                                                           |
+| `controlsPosition` | `"top-left"` \| `"top-right"` \| `"bottom-left"` \| `"bottom-right"` | `"bottom-right"` | Corner of the chart the buttons appear in.                                                                   |
+| `scrollZoom`       | `"modifier"` \| `"always"`                                           | `"modifier"`     | `"modifier"`: plain scrolling scrolls the page; ⌘/Ctrl + scroll or pinch zooms. `"always"`: scrolling zooms. |
 
 ## License
 

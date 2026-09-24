@@ -33,6 +33,9 @@ export const Bar3DChart: FC<Bar3DChartProps> = ({
   zLabels,
   maxHeight = 10,
   onBarClick,
+  showControls,
+  controlsPosition,
+  scrollZoom,
 }) => {
   const spacing = resolveGridSpacing(gridSpacing, barSpacing, 1)
 
@@ -140,6 +143,9 @@ export const Bar3DChart: FC<Bar3DChartProps> = ({
       cameraTarget={centerPoint}
       autoPosition={true}
       axisLabels={axisLabels}
+      showControls={showControls}
+      controlsPosition={controlsPosition}
+      scrollZoom={scrollZoom}
     >
       {normalizedData.map((row, zIndex) =>
         // For each row (z-axis)

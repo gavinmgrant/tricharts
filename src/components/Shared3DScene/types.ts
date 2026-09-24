@@ -19,7 +19,25 @@ export type GridConfig = {
   offset?: number
 }
 
-export type SceneProps = {
+export type ControlsPosition =
+  "top-left" | "top-right" | "bottom-left" | "bottom-right"
+
+export type ScrollZoom = "modifier" | "always"
+
+/** Interaction options shared by every chart. */
+export type ChartControlsProps = {
+  /** Show the on-screen rotate, zoom and reset buttons. Defaults to `true`. */
+  showControls?: boolean
+  /** Corner for the on-screen controls. Defaults to `"bottom-right"`. */
+  controlsPosition?: ControlsPosition
+  /**
+   * `"modifier"` (default): plain scrolling scrolls the page and ⌘/Ctrl +
+   * scroll or pinch zooms. `"always"`: scrolling over the chart zooms it.
+   */
+  scrollZoom?: ScrollZoom
+}
+
+export type SceneProps = ChartControlsProps & {
   axisLabels?: AxisLabels
   showFloorGrid?: boolean
   showVerticalGrids?: boolean
