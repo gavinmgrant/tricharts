@@ -123,6 +123,22 @@ The chart automatically fills 100% of its parent container. Simply wrap it in a 
 </div>
 ```
 
+The camera automatically frames the chart and all of its labels, and refits when the container is resized or the data changes.
+
+## Controls
+
+| Action     | Mouse / trackpad | Touch       |
+| ---------- | ---------------- | ----------- |
+| Rotate     | Drag             | One finger  |
+| Pan        | Right-drag       | Two fingers |
+| Zoom       | Scroll or pinch  | Pinch       |
+| Reset view | Double-click     | Double-tap  |
+
+- **Zoom** moves toward the cursor. Zooming out stops once the whole chart is in view, and zooming all the way out returns to the starting view.
+- **Rotation** is limited to the front quarter of the chart, so the grid walls stay behind the data.
+- **Panning** stays on the chart, so it can't be dragged out of view.
+- Once you rotate, pan or zoom, the chart no longer refits on resize, until you reset the view or the data changes.
+
 ## Chart Examples
 
 ### Simple Bar Chart

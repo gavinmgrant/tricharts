@@ -1,6 +1,6 @@
 import React, { useMemo } from "react"
 import { Canvas } from "@react-three/fiber"
-import { MapControls, Grid } from "@react-three/drei"
+import { OrbitControls, Grid } from "@react-three/drei"
 import * as THREE from "three"
 import { normalizeLabel } from "@/utils/labels"
 import { useChartCamera } from "@/hooks/useChartCamera"
@@ -126,18 +126,21 @@ export const Shared3DScene: React.FC<SceneProps> = ({
       <directionalLight position={[5, 10, 20]} intensity={1} />
 
       {/* Controls */}
-      <MapControls
+      <OrbitControls
         makeDefault
-        // With autoPosition, CameraFit owns the orbit target.
-        {...(!autoPosition && { target: cameraTarget })}
-        maxPolarAngle={Math.PI / 2}
+        // With autoPosition, CameraFit owns the target and distance limits.
+        {...(!autoPosition && { target: cameraTarget, maxDistance: 200 })}
+        // Between near-overhead and a view where floor labels stay readable.
+        minPolarAngle={Math.PI / 18}
+        maxPolarAngle={(5 * Math.PI) / 12}
+        // Keep the grid walls behind the chart.
         minAzimuthAngle={0}
         maxAzimuthAngle={Math.PI / 2}
-        screenSpacePanning={true}
-        enableDamping={true}
-        dampingFactor={0.1}
-        maxDistance={200}
-        enableZoom
+        rotateSpeed={0.6}
+        enableDamping
+        dampingFactor={0.08}
+        screenSpacePanning
+        zoomToCursor
       />
 
       {/* Grids */}

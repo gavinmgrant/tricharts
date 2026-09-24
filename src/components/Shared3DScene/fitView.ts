@@ -73,3 +73,41 @@ export function boxCorners(min: THREE.Vector3, max: THREE.Vector3) {
       for (const z of [min.z, max.z]) corners.push(new THREE.Vector3(x, y, z))
   return corners
 }
+
+/**
+ * The farthest the camera can be from `target`, looking along `direction`,
+ * while every point is still inside the frustum. Beyond this the chart only
+ * gets smaller, so it is used as the zoom-out limit.
+ *
+ * With the camera at target - direction * D, a point p (relative to target:
+ * right qx, up qy, depth qz) is visible when |qx| <= tan(hFov/2) * (qz + D),
+ * so D >= |qx| / tan(hFov/2) - qz, and likewise vertically.
+ */
+export function computeMaxDistance(params: {
+  points: THREE.Vector3[]
+  target: THREE.Vector3
+  direction: THREE.Vector3
+  up: THREE.Vector3
+  fovY: number
+  aspect: number
+  padding?: number
+}): number {
+  const { points, target, direction, up, fovY, aspect, padding = 0.06 } = params
+
+  const d = direction.clone().normalize()
+  const r = new THREE.Vector3().crossVectors(d, up).normalize()
+  const u = new THREE.Vector3().crossVectors(r, d).normalize()
+
+  const ty = Math.tan(THREE.MathUtils.degToRad(fovY) / 2) * (1 - padding)
+  const tx = ty * aspect
+
+  const q = new THREE.Vector3()
+  let distance = 0
+  for (const p of points) {
+    q.subVectors(p, target)
+    const needed =
+      Math.max(Math.abs(q.dot(r)) / tx, Math.abs(q.dot(u)) / ty) - q.dot(d)
+    distance = Math.max(distance, needed)
+  }
+  return distance
+}
