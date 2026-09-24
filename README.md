@@ -35,6 +35,8 @@ yarn add tricharts react react-dom @react-three/fiber @react-three/drei three
 pnpm add tricharts react react-dom @react-three/fiber @react-three/drei three
 ```
 
+**Requirements:** React 18+, `@react-three/fiber` 8+, `@react-three/drei` 9+, `three` 0.150+, and Node.js 18+.
+
 ## Chart Types
 
 TriCharts currently includes two chart types: `Bar3DChart` for 3D bar charts and `Surface3DChart` for continuous 3D surfaces.
@@ -77,8 +79,8 @@ function App() {
 }
 ```
 
-[View this chart on Storybook](https://main--681bd8e0a76963348cb8ef98.chromatic.com/?path=/story/charts-bar3dchart--default)
-[View the surface chart on Storybook](https://main--681bd8e0a76963348cb8ef98.chromatic.com/?path=/story/charts-surface3dchart--default)
+- [View the bar chart on Storybook](https://main--681bd8e0a76963348cb8ef98.chromatic.com/?path=/story/charts-bar3dchart--default)
+- [View the surface chart on Storybook](https://main--681bd8e0a76963348cb8ef98.chromatic.com/?path=/story/charts-surface3dchart--default)
 
 ## Using with Next.js App Router
 
@@ -123,8 +125,6 @@ The chart automatically fills 100% of its parent container. Simply wrap it in a 
 
 ## Chart Examples
 
-TriCharts currently includes two chart types: `Bar3DChart` for 3D bar charts and `Surface3DChart` for continuous 3D surfaces.
-
 ### Simple Bar Chart
 
 ```jsx
@@ -139,7 +139,7 @@ function SingleRowBar() {
         data={data}
         colorScheme="random"
         xLabel="Months"
-        xLabels={["Jan", "Feb", "Mar", "Apr", "May", "Jun"]}
+        xLabels={["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"]}
       />
     </div>
   )
