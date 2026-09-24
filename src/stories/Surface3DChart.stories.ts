@@ -70,6 +70,10 @@ const meta = {
       control: { type: "inline-radio" },
       options: ["modifier", "always"],
     },
+    touchRotate: {
+      control: { type: "inline-radio" },
+      options: ["two-finger", "one-finger"],
+    },
   },
   decorators: [withContainer],
 } satisfies Meta<typeof Surface3DChart>

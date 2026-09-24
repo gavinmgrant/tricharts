@@ -24,6 +24,8 @@ export type ControlsPosition =
 
 export type ScrollZoom = "modifier" | "always"
 
+export type TouchRotate = "two-finger" | "one-finger"
+
 /** Interaction options shared by every chart. */
 export type ChartControlsProps = {
   /** Show the on-screen rotate, zoom and reset buttons. Defaults to `true`. */
@@ -35,6 +37,11 @@ export type ChartControlsProps = {
    * scroll or pinch zooms. `"always"`: scrolling over the chart zooms it.
    */
   scrollZoom?: ScrollZoom
+  /**
+   * `"two-finger"` (default): one-finger swipes scroll the page; two fingers
+   * rotate and pinch to zoom. `"one-finger"`: one finger rotates the chart.
+   */
+  touchRotate?: TouchRotate
 }
 
 export type SceneProps = ChartControlsProps & {

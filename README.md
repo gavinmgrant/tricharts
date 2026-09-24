@@ -129,14 +129,15 @@ The camera automatically frames the chart and all of its labels, and refits when
 
 Each chart has a toolbar in the bottom-right corner to rotate, zoom and reset the view, so no gestures are needed. Pointing at a chart for the first time shows a short hint for the gestures.
 
-| Action     | Mouse / trackpad          | Touch       | Toolbar |
-| ---------- | ------------------------- | ----------- | ------- |
-| Rotate     | Drag                      | One finger  | ↺ ↻     |
-| Pan        | Right-drag                | Two fingers |         |
-| Zoom       | ⌘/Ctrl + scroll, or pinch | Pinch       | − +     |
-| Reset view | Double-click              | Double-tap  | ⛶       |
+| Action     | Mouse / trackpad          | Touch           | Toolbar |
+| ---------- | ------------------------- | --------------- | ------- |
+| Rotate     | Drag                      | Two-finger drag | ↺ ↻     |
+| Pan        | Right-drag                | —               |         |
+| Zoom       | ⌘/Ctrl + scroll, or pinch | Pinch           | − +     |
+| Reset view | Double-click              | Double-tap      | ⛶       |
 
 - **Scrolling** over a chart scrolls the page, so charts don't trap the scroll wheel. Hold ⌘ (Mac) or Ctrl while scrolling, or pinch on a trackpad, to zoom. Set `scrollZoom="always"` to zoom on plain scrolling instead.
+- **Swiping** with one finger on a touch screen scrolls the page too; use two fingers to rotate and pinch to zoom. Set `touchRotate="one-finger"` to rotate with one finger and pan with two instead, at the cost of page scrolling over the chart.
 - **Zoom** moves toward the cursor. Zooming out stops once the whole chart is in view, and zooming all the way out returns to the starting view.
 - **Rotation** is limited to the front quarter of the chart, so the grid walls stay behind the data.
 - **Panning** stays on the chart, so it can't be dragged out of view.
@@ -311,11 +312,12 @@ function InteractiveChart() {
 
 Both charts also accept these props:
 
-| Prop Name          | Type                                                                 | Default          | Description                                                                                                  |
-| ------------------ | -------------------------------------------------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------ |
-| `showControls`     | `boolean`                                                            | `true`           | Show the on-screen rotate, zoom and reset buttons.                                                           |
-| `controlsPosition` | `"top-left"` \| `"top-right"` \| `"bottom-left"` \| `"bottom-right"` | `"bottom-right"` | Corner of the chart the buttons appear in.                                                                   |
-| `scrollZoom`       | `"modifier"` \| `"always"`                                           | `"modifier"`     | `"modifier"`: plain scrolling scrolls the page; ⌘/Ctrl + scroll or pinch zooms. `"always"`: scrolling zooms. |
+| Prop Name          | Type                                                                 | Default          | Description                                                                                                                |
+| ------------------ | -------------------------------------------------------------------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `showControls`     | `boolean`                                                            | `true`           | Show the on-screen rotate, zoom and reset buttons.                                                                         |
+| `controlsPosition` | `"top-left"` \| `"top-right"` \| `"bottom-left"` \| `"bottom-right"` | `"bottom-right"` | Corner of the chart the buttons appear in.                                                                                 |
+| `scrollZoom`       | `"modifier"` \| `"always"`                                           | `"modifier"`     | `"modifier"`: plain scrolling scrolls the page; ⌘/Ctrl + scroll or pinch zooms. `"always"`: scrolling zooms.               |
+| `touchRotate`      | `"two-finger"` \| `"one-finger"`                                     | `"two-finger"`   | `"two-finger"`: one-finger swipes scroll the page; two fingers rotate and pinch zooms. `"one-finger"`: one finger rotates. |
 
 ## License
 

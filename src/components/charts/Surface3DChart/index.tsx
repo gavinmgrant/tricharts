@@ -43,6 +43,7 @@ export const Surface3DChart: FC<Surface3DChartProps> = ({
   showControls,
   controlsPosition,
   scrollZoom,
+  touchRotate,
 }) => {
   const spacing = resolveGridSpacing(gridSpacing, barSpacing, 1)
 
@@ -179,6 +180,7 @@ export const Surface3DChart: FC<Surface3DChartProps> = ({
       showControls={showControls}
       controlsPosition={controlsPosition}
       scrollZoom={scrollZoom}
+      touchRotate={touchRotate}
     >
       {surfaceGridOk && (
         <SurfaceMesh

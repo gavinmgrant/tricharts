@@ -23,6 +23,7 @@ export const Shared3DScene: React.FC<SceneProps> = ({
   showControls = true,
   controlsPosition = "bottom-right",
   scrollZoom = "modifier",
+  touchRotate = "two-finger",
 }) => {
   const bridge = useMemo(() => new CameraBridge(), [])
   const cameraFitEnabled = autoPosition && !!chartDimensions
@@ -122,6 +123,7 @@ export const Shared3DScene: React.FC<SceneProps> = ({
       showControls={showControls && cameraFitEnabled}
       controlsPosition={controlsPosition}
       scrollZoom={scrollZoom}
+      touchRotate={touchRotate}
     >
       <Canvas
         camera={{
@@ -156,6 +158,12 @@ export const Shared3DScene: React.FC<SceneProps> = ({
           dampingFactor={0.08}
           screenSpacePanning
           zoomToCursor
+          // Leaving ONE unset lets a one-finger swipe scroll the page.
+          touches={
+            touchRotate === "two-finger"
+              ? { TWO: THREE.TOUCH.DOLLY_ROTATE }
+              : { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN }
+          }
         />
 
         {/* Grids */}

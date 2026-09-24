@@ -6,7 +6,7 @@ import React, {
   useSyncExternalStore,
 } from "react"
 import type { CameraBridge } from "./cameraBridge"
-import type { ControlsPosition, ScrollZoom } from "./types"
+import type { ControlsPosition, ScrollZoom, TouchRotate } from "./types"
 
 const HINT_DURATION_MS = 4000
 const SCROLL_NOTICE_DURATION_MS = 1500
@@ -16,8 +16,13 @@ const isMac = () =>
   /Mac|iPhone|iPad|iPod/.test(navigator.userAgent)
 
 // Themeable through the --tricharts-controls-* custom properties.
+// With two-finger touch rotation, `touch-action: pan-x pan-y` lets the browser
+// scroll the page on one-finger swipes; it overrides the `none` the orbit
+// controls set inline (and applies to every descendant, since touch-action
+// is intersected down the tree).
 const STYLES = `
 .tricharts-frame{position:relative;width:100%;height:100%}
+.tricharts-frame[data-touch-rotate="two-finger"] *{touch-action:pan-x pan-y!important}
 .tricharts-toolbar{position:absolute;z-index:1;display:flex;gap:6px}
 .tricharts-toolbar[data-position="top-left"]{top:12px;left:12px}
 .tricharts-toolbar[data-position="top-right"]{top:12px;right:12px}
@@ -70,20 +75,29 @@ const ControlButton: React.FC<{
   </button>
 )
 
-type Notice = { text: string; kind: "hint" | "scroll" }
+type Notice = { text: string; kind: "hint" | "scroll" | "touch" }
 
 /**
  * DOM layer around the chart canvas: the on-screen camera toolbar, a one-time
- * gesture hint, and (with `scrollZoom="modifier"`) letting plain scrolling
- * scroll the page instead of zooming the chart.
+ * gesture hint, and letting plain scrolling (`scrollZoom="modifier"`) and
+ * one-finger swipes (`touchRotate="two-finger"`) scroll the page instead of
+ * moving the chart.
  */
 export const ChartFrame: React.FC<{
   bridge: CameraBridge
   showControls: boolean
   controlsPosition: ControlsPosition
   scrollZoom: ScrollZoom
+  touchRotate: TouchRotate
   children: React.ReactNode
-}> = ({ bridge, showControls, controlsPosition, scrollZoom, children }) => {
+}> = ({
+  bridge,
+  showControls,
+  controlsPosition,
+  scrollZoom,
+  touchRotate,
+  children,
+}) => {
   const frameRef = useRef<HTMLDivElement>(null)
   const view = useSyncExternalStore(
     bridge.subscribe,
@@ -150,9 +164,13 @@ export const ChartFrame: React.FC<{
       if (hintShown.current) return
       hintShown.current = true
       const zoom = scrollZoom === "always" ? "Scroll" : `${modifier} + scroll`
+      const touchText =
+        touchRotate === "two-finger"
+          ? "Two fingers to rotate · Pinch to zoom"
+          : "Drag to rotate · Pinch to zoom · Two fingers to pan"
       const text =
         event.pointerType === "touch"
-          ? "Drag to rotate · Pinch to zoom · Two fingers to pan"
+          ? touchText
           : `Drag to rotate · ${zoom} to zoom · Right-drag to pan`
       showNotice({ text, kind: "hint" }, HINT_DURATION_MS)
     }
@@ -163,20 +181,46 @@ export const ChartFrame: React.FC<{
       if (event.pointerType !== "touch") dismissNotice("hint")
     }
 
+    // One finger scrolls the page (touch-action allows it); a second finger
+    // cancels the scroll so the controls get the rotate/pinch. The browser
+    // only honours this before a scroll has started, which is fine since
+    // both fingers normally land together.
+    const onTouchMove = (event: TouchEvent) => {
+      if (touchRotate !== "two-finger") return
+      if (event.touches.length > 1) {
+        if (event.cancelable) event.preventDefault()
+        dismissNotice("touch")
+        return
+      }
+      showNotice(
+        { text: "Use two fingers to rotate", kind: "touch" },
+        SCROLL_NOTICE_DURATION_MS
+      )
+    }
+
     frame.addEventListener("wheel", onWheel, { capture: true, passive: true })
+    frame.addEventListener("touchmove", onTouchMove, {
+      capture: true,
+      passive: false,
+    })
     frame.addEventListener("pointerenter", onPointerEnter)
     frame.addEventListener("pointerdown", onPointerDown, { capture: true })
     return () => {
       frame.removeEventListener("wheel", onWheel, { capture: true })
+      frame.removeEventListener("touchmove", onTouchMove, { capture: true })
       frame.removeEventListener("pointerenter", onPointerEnter)
       frame.removeEventListener("pointerdown", onPointerDown, { capture: true })
     }
-  }, [scrollZoom, showNotice, dismissNotice])
+  }, [scrollZoom, touchRotate, showNotice, dismissNotice])
 
   const api = () => bridge.api
 
   return (
-    <div ref={frameRef} className="tricharts-frame">
+    <div
+      ref={frameRef}
+      className="tricharts-frame"
+      data-touch-rotate={touchRotate}
+    >
       <style>{STYLES}</style>
       {children}
 
