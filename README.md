@@ -319,6 +319,15 @@ Both charts also accept these props:
 | `scrollZoom`       | `"modifier"` \| `"always"`                                           | `"modifier"`     | `"modifier"`: plain scrolling scrolls the page; ⌘/Ctrl + scroll or pinch zooms. `"always"`: scrolling zooms.               |
 | `touchRotate`      | `"two-finger"` \| `"one-finger"`                                     | `"two-finger"`   | `"two-finger"`: one-finger swipes scroll the page; two fingers rotate and pinch zooms. `"one-finger"`: one finger rotates. |
 
+### Rendering Props
+
+Charts only redraw while something is changing (the intro animation, orbiting, hovering), and stop rendering entirely while scrolled off-screen, so an idle chart costs nothing. A chart that mounts off-screen plays its intro when it scrolls into view.
+
+| Prop Name   | Type                          | Default    | Description                                                                                                         |
+| ----------- | ----------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------- |
+| `frameloop` | `"demand"` \| `"always"`      | `"demand"` | `"demand"`: redraw only when something changes. `"always"`: redraw every frame.                                     |
+| `dpr`       | `number` \| `[number, number]` | `[1, 1.5]` | Device pixel ratio, or a `[min, max]` range clamped to the screen's. The default keeps high-DPI phones from rendering at 3x. |
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

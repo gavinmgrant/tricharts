@@ -37,6 +37,8 @@ export const Bar3DChart: FC<Bar3DChartProps> = ({
   controlsPosition,
   scrollZoom,
   touchRotate,
+  frameloop,
+  dpr,
 }) => {
   const spacing = resolveGridSpacing(gridSpacing, barSpacing, 1)
 
@@ -148,6 +150,8 @@ export const Bar3DChart: FC<Bar3DChartProps> = ({
       controlsPosition={controlsPosition}
       scrollZoom={scrollZoom}
       touchRotate={touchRotate}
+      frameloop={frameloop}
+      dpr={dpr}
     >
       {normalizedData.map((row, zIndex) =>
         // For each row (z-axis)

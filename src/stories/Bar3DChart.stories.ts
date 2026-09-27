@@ -49,6 +49,10 @@ const meta = {
       control: { type: "inline-radio" },
       options: ["two-finger", "one-finger"],
     },
+    frameloop: {
+      control: { type: "inline-radio" },
+      options: ["demand", "always"],
+    },
   },
   decorators: [withContainer],
 } satisfies Meta<typeof Bar3DChart>

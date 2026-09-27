@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef } from "react"
-import { useFrame } from "@react-three/fiber"
+import { useFrame, useThree } from "@react-three/fiber"
 import * as THREE from "three"
 
 function easeInOutCubic(t: number): number {
@@ -29,18 +29,25 @@ export const use3DScaling = (
     originalValue = targetHeight,
   } = options || {}
 
+  const invalidate = useThree((state) => state.invalidate)
   const meshRef = useRef<THREE.Mesh>(null!)
   const progressRef = useRef(0)
+  // With frameloop="demand" the first frame after a (re)start reports the
+  // whole idle time as its delta, which would finish the animation in one
+  // step, so that frame only starts the clock.
+  const startingRef = useRef(true)
   const previousTargetHeightRef = useRef(targetHeight)
   const lastDisplayValueRef = useRef<string | null>(null)
 
   useEffect(() => {
     if (previousTargetHeightRef.current !== targetHeight) {
       progressRef.current = 0
+      startingRef.current = true
       lastDisplayValueRef.current = null
       previousTargetHeightRef.current = targetHeight
+      invalidate()
     }
-  }, [targetHeight])
+  }, [targetHeight, invalidate])
 
   useLayoutEffect(() => {
     const mesh = meshRef.current
@@ -49,10 +56,14 @@ export const use3DScaling = (
     mesh.position.y = 0
   }, [targetHeight])
 
-  useFrame((_, delta) => {
+  useFrame((state, delta) => {
     if (progressRef.current >= 1) return
+    // Keep frames coming until the animation ends.
+    state.invalidate()
 
-    progressRef.current = Math.min(progressRef.current + delta / duration, 1)
+    const step = startingRef.current ? 0 : delta
+    startingRef.current = false
+    progressRef.current = Math.min(progressRef.current + step / duration, 1)
     const easedProgress = easeInOutCubic(progressRef.current)
     const currentBarHeight = easedProgress * targetHeight
 

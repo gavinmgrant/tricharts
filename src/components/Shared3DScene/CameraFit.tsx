@@ -115,6 +115,7 @@ export const CameraFit: React.FC<{
   const size = useThree((s) => s.size)
   const gl = useThree((s) => s.gl)
   const controls = useThree((s) => s.controls) as unknown as ControlsLike | null
+  const invalidate = useThree((s) => s.invalidate)
 
   const labels = useRef(new Set<TroikaText>())
   const fitPoints = useRef<THREE.Vector3[]>([])
@@ -127,32 +128,37 @@ export const CameraFit: React.FC<{
   const lastDistance = useRef(0)
   const mountedAt = useRef(performance.now())
 
+  // Refits on the next frame, and asks for one in case nothing else is
+  // rendering (frameloop="demand").
+  const markDirty = useCallback(() => {
+    dirty.current = true
+    invalidate()
+  }, [invalidate])
+
   const registry = useMemo<FitRegistry>(
     () => ({
       register: (mesh) => {
         labels.current.add(mesh)
-        dirty.current = true
+        markDirty()
         return () => {
           labels.current.delete(mesh)
-          dirty.current = true
+          markDirty()
         }
       },
-      invalidate: () => {
-        dirty.current = true
-      },
+      invalidate: markDirty,
     }),
-    []
+    [markDirty]
   )
 
   // New content gets a fresh fit, even if the user moved the camera before.
   useEffect(() => {
     userInteracted.current = false
-    dirty.current = true
-  }, [contentKey])
+    markDirty()
+  }, [contentKey, markDirty])
 
   useEffect(() => {
-    dirty.current = true
-  }, [size.width, size.height, bounds, direction])
+    markDirty()
+  }, [size.width, size.height, bounds, direction, markDirty])
 
   useEffect(() => {
     if (!controls) return
@@ -222,6 +228,7 @@ export const CameraFit: React.FC<{
       duration: prefersReducedMotion() ? 0 : duration,
       endsFitted,
     }
+    invalidate()
   }
 
   const resetView = () => {
@@ -432,7 +439,10 @@ export const CameraFit: React.FC<{
       fitPoints.current = points
       const waiting =
         pending && performance.now() - mountedAt.current < LABEL_SYNC_TIMEOUT_MS
-      if (!waiting) {
+      if (waiting) {
+        // Poll until the labels sync or the timeout passes.
+        invalidate()
+      } else {
         dirty.current = false
         const fit = computeFit()
         panBounds.current.set(bounds.min, bounds.max)
@@ -469,6 +479,8 @@ export const CameraFit: React.FC<{
         animation.current = null
         // Back at the fitted view, so resizes refit again.
         if (endsFitted) userInteracted.current = false
+      } else {
+        invalidate()
       }
     } else if (userInteracted.current) {
       recenterOnZoomOut()

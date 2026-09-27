@@ -1,4 +1,4 @@
-import React, { useMemo } from "react"
+import React, { useEffect, useMemo, useRef, useState } from "react"
 import { Canvas } from "@react-three/fiber"
 import { OrbitControls, Grid } from "@react-three/drei"
 import * as THREE from "three"
@@ -24,8 +24,12 @@ export const Shared3DScene: React.FC<SceneProps> = ({
   controlsPosition = "bottom-right",
   scrollZoom = "modifier",
   touchRotate = "two-finger",
+  frameloop = "demand",
+  dpr = [1, 1.5],
 }) => {
   const bridge = useMemo(() => new CameraBridge(), [])
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const onScreen = useOnScreen(canvasRef)
   const cameraFitEnabled = autoPosition && !!chartDimensions
 
   const gridWidth = chartDimensions?.width ?? gridConfig.size ?? 10
@@ -126,6 +130,12 @@ export const Shared3DScene: React.FC<SceneProps> = ({
       touchRotate={touchRotate}
     >
       <Canvas
+        ref={canvasRef}
+        // Off-screen charts stop rendering; switching back to a live loop
+        // redraws straight away, so an intro that hasn't played yet starts
+        // when the chart scrolls into view.
+        frameloop={onScreen ? frameloop : "never"}
+        dpr={dpr}
         camera={{
           fov: 30,
           near: 1,
@@ -265,3 +275,21 @@ const MaybeCameraFit: React.FC<
   React.ComponentProps<typeof CameraFit> & { enabled: boolean }
 > = ({ enabled, children, ...props }) =>
   enabled ? <CameraFit {...props}>{children}</CameraFit> : <>{children}</>
+
+// Assumes on-screen until the observer reports otherwise, so the first frame
+// always renders (and SSR / browsers without IntersectionObserver keep working).
+function useOnScreen(ref: React.RefObject<Element | null>) {
+  const [onScreen, setOnScreen] = useState(true)
+
+  useEffect(() => {
+    const element = ref.current
+    if (!element || typeof IntersectionObserver === "undefined") return
+    const observer = new IntersectionObserver(([entry]) =>
+      setOnScreen(entry.isIntersecting)
+    )
+    observer.observe(element)
+    return () => observer.disconnect()
+  }, [ref])
+
+  return onScreen
+}

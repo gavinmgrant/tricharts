@@ -26,6 +26,8 @@ export type ScrollZoom = "modifier" | "always"
 
 export type TouchRotate = "two-finger" | "one-finger"
 
+export type FrameLoop = "demand" | "always"
+
 /** Interaction options shared by every chart. */
 export type ChartControlsProps = {
   /** Show the on-screen rotate, zoom and reset buttons. Defaults to `true`. */
@@ -44,7 +46,23 @@ export type ChartControlsProps = {
   touchRotate?: TouchRotate
 }
 
-export type SceneProps = ChartControlsProps & {
+/** Rendering options shared by every chart. */
+export type ChartRenderProps = {
+  /**
+   * `"demand"` (default): redraw only while something is changing (intro
+   * animation, orbiting, hover). `"always"`: redraw every frame.
+   * Rendering pauses entirely while the chart is scrolled off-screen.
+   */
+  frameloop?: FrameLoop
+  /**
+   * Device pixel ratio, or a `[min, max]` range clamped to the screen's.
+   * Defaults to `[1, 1.5]`, which keeps high-DPI phones from rendering
+   * at 3x.
+   */
+  dpr?: number | [number, number]
+}
+
+export type SceneProps = ChartControlsProps & ChartRenderProps & {
   axisLabels?: AxisLabels
   showFloorGrid?: boolean
   showVerticalGrids?: boolean
