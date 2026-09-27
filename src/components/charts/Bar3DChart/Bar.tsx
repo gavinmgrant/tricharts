@@ -31,7 +31,7 @@ const Bar: FC<BarProps> = memo(
 
     const { meshRef } = use3DScaling(height, {
       duration: ANIMATION_DURATION,
-      labelRef: showLabel ? textRef : undefined,
+      labelRef: textRef,
       originalValue,
     })
 
@@ -76,22 +76,22 @@ const Bar: FC<BarProps> = memo(
           </lineSegments>
         )}
 
-        {showLabel && (
-          <Text
-            ref={textRef}
-            position={[xPos, 0.01, zPos]}
-            rotation={[-Math.PI / 2, 0, 0]}
-            fontSize={barDepth / 3}
-            fontWeight={700}
-            color="white"
-            anchorX="center"
-            anchorY="middle"
-            outlineWidth={barDepth * 0.025}
-            outlineColor="black"
-          >
-            0
-          </Text>
-        )}
+        {/* Keep the label mounted so use3DScaling keeps its position/value in sync */}
+        <Text
+          ref={textRef}
+          visible={showLabel}
+          position={[xPos, 0.01, zPos]}
+          rotation={[-Math.PI / 2, 0, 0]}
+          fontSize={barDepth / 3}
+          fontWeight={700}
+          color="white"
+          anchorX="center"
+          anchorY="middle"
+          outlineWidth={barDepth * 0.025}
+          outlineColor="black"
+        >
+          0
+        </Text>
       </>
     )
   }
