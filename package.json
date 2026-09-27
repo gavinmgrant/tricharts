@@ -72,6 +72,7 @@
     "vitest": "^3.1.2"
   },
   "dependencies": {
-    "styled-components": "^6.1.17"
+    "styled-components": "^6.1.17",
+    "tricharts": "^0.3.1"
   }
 }
