@@ -27,7 +27,7 @@ const FitContext = createContext<FitRegistry | null>(null)
 // doesn't hold the camera in its unfitted position.
 const LABEL_SYNC_TIMEOUT_MS = 1000
 
-// Closest zoom, as a fraction of the zoom-out limit.
+// Closest zoom, as a fraction of the fitted view's distance.
 const MIN_DISTANCE_RATIO = 0.2
 
 const RESET_DURATION_MS = 600
@@ -198,6 +198,13 @@ export const CameraFit: React.FC<{
       aspect: size.width / size.height,
     })
 
+  // Zoom-in limit, measured from the centred fit for this angle rather than
+  // the current target. The zoom-out limit grows as the target pans toward
+  // an end of the chart, so a floor tied to it would push the camera back and
+  // only the middle of a large chart could be seen up close.
+  const minDistanceFor = (viewDirection: THREE.Vector3) =>
+    (computeFit(viewDirection)?.distance ?? 0) * MIN_DISTANCE_RATIO
+
   // Where the camera is headed: the end of a running animation, so repeated
   // button presses accumulate instead of restarting from mid-flight.
   const goal = () =>
@@ -273,7 +280,7 @@ export const CameraFit: React.FC<{
     const maxDistance = maxDistanceFor(target, viewDirection)
 
     if (scale < 1) {
-      const next = Math.max(distance * scale, maxDistance * MIN_DISTANCE_RATIO)
+      const next = Math.max(distance * scale, minDistanceFor(viewDirection))
       if (next >= distance - 1e-6) return
       const toPosition = target.clone().addScaledVector(viewDirection, -next)
       animateTo(toPosition, target, STEP_DURATION_MS)
@@ -342,8 +349,7 @@ export const CameraFit: React.FC<{
     bridge.setState({
       canRotateLeft: theta < MAX_AZIMUTH - LIMIT_EPSILON,
       canRotateRight: theta > MIN_AZIMUTH + LIMIT_EPSILON,
-      canZoomIn:
-        distance > maxDistance * MIN_DISTANCE_RATIO * (1 + LIMIT_EPSILON),
+      canZoomIn: distance > minDistanceFor(viewDirection) * (1 + LIMIT_EPSILON),
       canZoomOut: distance < maxDistance * (1 - LIMIT_EPSILON) || offCentre,
       canReset: userInteracted.current,
     })
@@ -490,16 +496,9 @@ export const CameraFit: React.FC<{
 
     if (fitPoints.current.length === 0) return
 
-    const maxDistance = computeMaxDistance({
-      points: fitPoints.current,
-      target: controls.target,
-      direction: controls.target.clone().sub(camera.position),
-      up: camera.up,
-      fovY: camera.fov,
-      aspect: size.width / size.height,
-    })
-    controls.maxDistance = maxDistance
-    controls.minDistance = maxDistance * MIN_DISTANCE_RATIO
+    const viewDirection = controls.target.clone().sub(camera.position)
+    controls.maxDistance = maxDistanceFor(controls.target, viewDirection)
+    controls.minDistance = minDistanceFor(viewDirection)
     lastDistance.current = camera.position.distanceTo(controls.target)
 
     publishViewState()
